@@ -23,7 +23,7 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "script lỏ",
+    Title = "script lỏ × toàn ngu lồn",
     SubTitle = "tổng hợp script game",
     TabWidth = 157,
     Size = UDim2.fromOffset(460, 310),
@@ -231,3 +231,6 @@ if url then
     loadstring(game:HttpGetAsync(url))()
     loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
 end
+})
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()

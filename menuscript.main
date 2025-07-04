@@ -34,10 +34,9 @@ local Window = Fluent:CreateWindow({
 local Tabs = {
         Main0=Window:AddTab({ Title="thông tin" }),
         Main1=Window:AddTab({ Title="Farm BloxFruits" }),
-        Main2=Window:AddTab({ Title="hop sever BloxFruits" })
-Main3=Window:AddTab({ Title="dead rail" }),
-}
-Main4=Window:AddTab({ Title="Script grow a garden" }),
+        Main2=Window:AddTab({ Title="hop sever BloxFruits" }),
+        Main3=Window:AddTab({ Title="dead rail" }),
+        Main4=Window:AddTab({ Title="Script grow a garden" }),
     Tabs.Main0:AddButton({
     Title = "ko bt ghi gì",
     Description = "tiktok đi hen",

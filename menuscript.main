@@ -23,7 +23,7 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "toàn bị gay",
+    Title = "toàn ngu",
     SubTitle = "grow a garden",
     TabWidth = 157,
     Size = UDim2.fromOffset(550, 400),
@@ -33,7 +33,7 @@ local Window = Fluent:CreateWindow({
 })
 local Tabs = {
         Main0=Window:AddTab({ Title="Thông Tin" }),
-        Main1=Window:AddTab({ Title="gag" }),
+        Main1=Window:AddTab({ Title="toàn ngu" }),
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",

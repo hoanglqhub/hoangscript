@@ -52,10 +52,10 @@ local Tabs = {
 })
 
     Tabs.Main0:AddButton({
-    Title = "Youtuber",
+    Title = "như 2 cái trên",
     Description = "TBoy Gamer",
     Callback = function()
-        setclipboard("https://www.youtube.com/@TBoyGamer08")
+        setclipboard("")
     end
 })
     

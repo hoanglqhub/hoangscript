@@ -23,202 +23,55 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "script lỏ × toàn ngu lồn",
-    SubTitle = "tổng hợp script game",
+    Title = "toàn bị gay",
+    SubTitle = "Blox Fruit",
     TabWidth = 157,
-    Size = UDim2.fromOffset(460, 310),
+    Size = UDim2.fromOffset(450, 300),
     Acrylic = true,
-    Theme = "Dark",
+    Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.End
 })
 local Tabs = {
-        Main0=Window:AddTab({ Title="thông tin" }),
-        Main1=Window:AddTab({ Title="Farm BloxFruits" }),
-        Main2=Window:AddTab({ Title="hop sever BloxFruits" }),
-        Main3=Window:AddTab({ Title="dead rail" }),
-        Main4=Window:AddTab({ Title="Script grow a garden" }),
-    Tabs.Main0:AddButton({
-    Title = "ko bt ghi gì",
-    Description = "tiktok đi hen",
-    Callback = function()
-        setclipboard("https://www.tiktok.com/@hoang_lq911?_t=ZS-8vsac5snVih&_r=1")
-    end
-})
-
-    Tabs.Main0:AddButton({
-    Title = "tên tiktok nè",
-    Description = "hoang_lq911",
-    Callback = function()
-        setclipboard("@hoang_lq911")
-    end
-})
-    
-    Tabs.Main1:AddButton({
-    Title="Redz Hub",
-    Description="mượt",
-    Callback=function()
-	  local Settings = {
-  JoinTeam = "Pirates"; -- Pirates/Marines
-  Translator = true; -- true/false
+        Main0=Window:AddTab({ Title="Thông Tin" }),
+        Main1=Window:AddTab({ Title="gag" }),
 }
+    Tabs.Main0:AddButton({
+    Title = "chx bt để j vô đây",
+    Description = "",
+    Callback = function()
+        setclipboard("")
+    end
+})
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/newredz/BloxFruits/refs/heads/main/Source.luau"))(Settings)
+    Tabs.Main0:AddButton({
+    Title = "chx bt để j vô đây",
+    Description = "",
+    Callback = function()
+        setclipboard("")
+    end
+})
+
+    Tabs.Main0:AddButton({
+    Title = "Youtuber",
+    Description = "TBoy Gamer",
+    Callback = function()
+        setclipboard("https://www.youtube.com/@TBoyGamer08")
+    end
+})
+    
+    Tabs.Main1:AddButton({
+    Title="speed hub",
+    Description="",
+    Callback=function()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
   end
 })
 
 Tabs.Main1:AddButton({
-    Title="matsune hub",
-    Description="mượt",
+    Title="no lag hub",
+    Description="",
     Callback=function()
-   
-getgenv().Team = "Pirates"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/RealMatsune/Rolls-Rocye/refs/heads/main/Loading.lua"))()
-  end
-})
-
-Tabs.Main1:AddButton({
-    Title="blue X",
-    Description="lag",
-    Callback=function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
-    end
-    })
-    
-    Tabs.Main1:AddButton({
-    Title="min gaming",
-    Description="mượt",
-    Callback=function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Min/refs/heads/main/MinA1Eng"))()
-    end
-    })
-    
-    Tabs.Main1:AddButton({
-    Title="xero",
-    Description="có thể lỗi",
-    Callback=function()
-   
-getgenv().Team = "Marines"
-getgenv().Hide_Menu = false
-getgenv().Auto_Execute = false
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Xero2409/XeroHub/refs/heads/main/main.lua"))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="kimp banana",
-    Description="lag",
-    Callback=function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/kimprobloxdz/Banana-Free/refs/heads/main/Protected_5609200582002947.lua.txt"))()
-end
-})
-
-
-Tabs.Main3:AddButton({
-    Title="null fire",
-    Description="có thể lỗi",
-    Callback=function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/InfernusScripts/Null-Fire/main/Loader"))("DingaScripts")
-end
-})
-
-Tabs.Main3:AddButton({
-    Title="fram bond",
-    Description="có thể lỗi",
-    Callback=function()
-
-loadstring(game:HttpGet('https://raw.githubusercontent.com/DonjoScripts/Public-Scripts/refs/heads/Slap-Battles/TheFastestBondStealer.lua'))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="kimp Maru hub",
-    Description="lag",
-    Callback=function()
-
-getgenv().Team = "Marines" loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/KimP/refs/heads/main/MaruHub"))()
-end
-})
-
-Tabs.Main3:AddButton({
-    Title="Tbao hub",
-    Description="mượt",
-    Callback=function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/tbao143/thaibao/refs/heads/main/TbaoHubDeadRails"))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="trẩu",
-    Description="mượt",
-    Callback=function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/TrauHub/refs/heads/main/TrauXt"))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="AICHEMY HUB",
-    Description="lag",
-    Callback=function()
-
-loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()
-end
-})
- Tabs.Main1:AddButton({
-    Title="Astral hub",
-    Description="lag",
-    Callback=function()
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Overgustx2/Main/refs/heads/main/BloxFruits_25.html"))()
-end
-})
-
-Tabs.Main2:AddButton({
-    Title="zis hop sv",
-    Description="có thể lỗi",
-    Callback=function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Zis/refs/heads/main/ZisRobloxHop"))()
-end
-})
-
-Tabs.Main2:AddButton({
-    Title="teddy",
-    Description="có thể lỗi",
-    Callback=function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Teddyseetink/Haidepzai/refs/heads/main/TEDDY-FREEMIUM"))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="lion hub",
-    Description="lag",
-    Callback=function()
-
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-getgenv().team = "Pirates" -- Marines
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/e0c7fcf6c077fc23475cf4ce4db58e42.lua"))()
-end
-})
-
-Tabs.Main1:AddButton({
-    Title="rubu hub",
-    Description="mượt",
-    Callback=function()
-
-    getgenv().Team = "Marines" -- Marines, Pirates
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Bubu2k/Rubutv/refs/heads/main/RubuHub"))()
-end
-})
-
-Tabs.Main4:AddButton({
-    Title="script no lag hub",
-    Description="mượt",
-    Callback=function()
-
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+	  repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 local scripts = {
     [126884695634066] = "https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Garden/Garden-V1.lua",
@@ -230,8 +83,5 @@ if url then
     loadstring(game:HttpGetAsync(url))()
     loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
 end
-})
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-end
+  end
 })

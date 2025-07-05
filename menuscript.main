@@ -24,9 +24,9 @@ local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
     Title = "toàn bị gay",
-    SubTitle = "Blox Fruit",
+    SubTitle = "grow a garden",
     TabWidth = 157,
-    Size = UDim2.fromOffset(450, 300),
+    Size = UDim2.fromOffset(550, 400),
     Acrylic = true,
     Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.End

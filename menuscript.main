@@ -85,3 +85,11 @@ if url then
 end
   end
 })
+
+Tabs.Main1:AddButton({
+    Title="nat hub hub",
+    Description="",
+    Callback=function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
+end
+})

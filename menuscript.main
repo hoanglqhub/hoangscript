@@ -93,3 +93,4 @@ Tabs.Main1:AddButton({
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
 end
 })
+https://www.roblox.com/share?code=8f6e3f6628a0d449bb1e36ab617f8dc0&type=Server

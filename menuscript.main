@@ -23,8 +23,8 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "thi đức quốc xã 🔥🔥🔥×",
-    SubTitle = "gag",
+    Title = "thi hub",
+    SubTitle = "grow a garden",
     TabWidth = 157,
     Size = UDim2.fromOffset(540, 400),
     Acrylic = true,
@@ -33,7 +33,7 @@ local Window = Fluent:CreateWindow({
 })
 local Tabs = {
         Main0=Window:AddTab({ Title="Thông Tin" }),
-        Main1=Window:AddTab({ Title="thi × gag" }),
+        Main1=Window:AddTab({ Title="thi gag" }),
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
@@ -93,8 +93,19 @@ Tabs.Main1:AddButton({
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
 end
 })
+
 Tabs.Main1:AddButton({
-    Title="thunderZ",
+    Title="thunderZ Hub",
     Description="",
     Callback=function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
+end
+})
+
+Tabs.Main1:AddButton({
+    Title="quantum Hub",
+    Description="",
+    Callback=function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+end
+})

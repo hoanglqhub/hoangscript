@@ -23,12 +23,12 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "toàn ngu",
+    Title = "chị thi ngu ×",
     SubTitle = "grow a garden",
     TabWidth = 157,
     Size = UDim2.fromOffset(540, 400),
     Acrylic = true,
-    Theme = "Amethyst",
+    Theme = "Dark",
     MinimizeKey = Enum.KeyCode.End
 })
 local Tabs = {
@@ -37,7 +37,7 @@ local Tabs = {
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
-    Description = "",
+    Description = "cặc",
     Callback = function()
         setclipboard("")
     end
@@ -45,7 +45,7 @@ local Tabs = {
 
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
-    Description = "",
+    Description = "cặc",
     Callback = function()
         setclipboard("")
     end
@@ -53,7 +53,7 @@ local Tabs = {
 
     Tabs.Main0:AddButton({
     Title = "như 2 cái trên",
-    Description = "TBoy Gamer",
+    Description = "cặc",
     Callback = function()
         setclipboard("")
     end
@@ -61,7 +61,7 @@ local Tabs = {
     
     Tabs.Main1:AddButton({
     Title="speed hub",
-    Description="",
+    Description="khi chạy script này là chị thi bị ngu",
     Callback=function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
   end
@@ -69,7 +69,7 @@ local Tabs = {
 
 Tabs.Main1:AddButton({
     Title="no lag hub",
-    Description="",
+    Description="chị thi xấu vl luôn",
     Callback=function()
 	  repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
@@ -88,9 +88,15 @@ end
 
 Tabs.Main1:AddButton({
     Title="nat hub hub",
-    Description="",
+    Description="nói chung là xấu",
     Callback=function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
 end
 })
 https://www.roblox.com/share?code=8f6e3f6628a0d449bb1e36ab617f8dc0&type=Server
+
+Tabs.Main1:AddButton({
+    Title"thunderZ",
+    Description="chị thi xấu hơn bao giờ hết",
+    Callback=function()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()

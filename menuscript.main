@@ -23,17 +23,17 @@ end)
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 repeat wait() until game:IsLoaded()
 local Window = Fluent:CreateWindow({
-    Title = "chị thi ngu ×",
-    SubTitle = "grow a garden",
+    Title = "thi đức quốc xã 🔥🔥🔥×",
+    SubTitle = "gag",
     TabWidth = 157,
     Size = UDim2.fromOffset(540, 400),
     Acrylic = true,
-    Theme = "Dark",
+    Theme = "Amethyst",
     MinimizeKey = Enum.KeyCode.End
 })
 local Tabs = {
         Main0=Window:AddTab({ Title="Thông Tin" }),
-        Main1=Window:AddTab({ Title="chị thi xấu" }),
+        Main1=Window:AddTab({ Title="thi × gag" }),
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
@@ -61,7 +61,7 @@ local Tabs = {
     
     Tabs.Main1:AddButton({
     Title="speed hub",
-    Description="khi chạy script này là chị thi bị ngu",
+    Description="",
     Callback=function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
   end
@@ -69,7 +69,7 @@ local Tabs = {
 
 Tabs.Main1:AddButton({
     Title="no lag hub",
-    Description="chị thi xấu vl luôn",
+    Description="",
     Callback=function()
 	  repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
@@ -83,21 +83,18 @@ if url then
     loadstring(game:HttpGetAsync(url))()
     loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
 end
+  end
 })
 
 Tabs.Main1:AddButton({
     Title="nat hub hub",
-    Description="nói chung là xấu",
+    Description="",
     Callback=function()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
 end
 })
-https://www.roblox.com/share?code=8f6e3f6628a0d449bb1e36ab617f8dc0&type=Server
-
 Tabs.Main1:AddButton({
-    Title"thunderZ",
-    Description="chị thi xấu hơn bao giờ hết",
+    Title="thunderZ",
+    Description="",
     Callback=function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
-end
-})

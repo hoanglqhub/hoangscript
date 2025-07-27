@@ -37,7 +37,7 @@ local Tabs = {
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
-    Description = "cặc",
+    Description = "",
     Callback = function()
         setclipboard("")
     end
@@ -45,7 +45,7 @@ local Tabs = {
 
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",
-    Description = "cặc",
+    Description = "",
     Callback = function()
         setclipboard("")
     end
@@ -53,7 +53,7 @@ local Tabs = {
 
     Tabs.Main0:AddButton({
     Title = "như 2 cái trên",
-    Description = "cặc",
+    Description = "",
     Callback = function()
         setclipboard("")
     end
@@ -83,7 +83,6 @@ if url then
     loadstring(game:HttpGetAsync(url))()
     loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
 end
-  end
 })
 
 Tabs.Main1:AddButton({

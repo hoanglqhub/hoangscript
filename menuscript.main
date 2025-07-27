@@ -100,11 +100,5 @@ Tabs.Main1:AddButton({
     Description="chị thi xấu hơn bao giờ hết",
     Callback=function()
 loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
-
-Tabs.Main1:AddButton({
-    Title="thunderZ",
-    Description="chi thi xấu",
-    Callback=function()
-loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
 end
 })

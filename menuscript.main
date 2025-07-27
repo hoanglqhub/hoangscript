@@ -33,7 +33,7 @@ local Window = Fluent:CreateWindow({
 })
 local Tabs = {
         Main0=Window:AddTab({ Title="Thông Tin" }),
-        Main1=Window:AddTab({ Title="toàn ngu" }),
+        Main1=Window:AddTab({ Title="chị thi xấu" }),
 }
     Tabs.Main0:AddButton({
     Title = "chx bt để j vô đây",

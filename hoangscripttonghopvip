@@ -1,0 +1,176 @@
+local ScreenGui = Instance.new("ScreenGui")
+local ImageButton = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+
+ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui -- Sử dụng PlayerGui để tránh xung đột
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.ResetOnSpawn = false -- Ngăn GUI reset khi respawn
+
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
+ImageButton.Size = UDim2.new(0, 40, 0, 40)
+ImageButton.Draggable = true
+ImageButton.Image = "http://www.roblox.com/asset/?id=107790666255534"
+ImageButton.ZIndex = 10 -- Đảm bảo nút nổi lên trên
+
+UICorner.CornerRadius = UDim.new(1, 10)
+UICorner.Parent = ImageButton
+
+ImageButton.MouseButton1Down:Connect(function()
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+    -- Thông báo cảnh báo (tiếng Anh)
+    Fluent:Notify({
+        Title = "Cảnh Báo",
+        Content = "Game controls (movement/jump buttons) may disappear for 5-15 seconds.",
+        Duration = 5 -- Notification duration (seconds)
+    })
+    -- Thông báo cảm ơn
+    Fluent:Notify({
+        Title = "Cảm ơn bạn đã sử dụng script của tôi!",
+        Content = "Thank you for using my script! Enjoy the features!",
+        Duration = 5 -- Notification duration (seconds)
+    })
+    -- Thông báo cảnh báo mới (tiếng Việt)
+    Fluent:Notify({
+        Title = "Cảnh Báo",
+        Content = "Các nút điều khiển game (di chuyển/nhảy) có thể biến mất trong 5-15 giây.",
+        Duration = 5 -- Notification duration (seconds)
+    })
+end)
+
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+repeat wait() until game:IsLoaded()
+local Window = Fluent:CreateWindow({
+    Title = "EREN HUB",
+    SubTitle = "tổng hợp scripts hack game",
+    TabWidth = 157,
+    Size = UDim2.fromOffset(540, 400),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End
+})
+
+Fluent:Notify({
+    Title = "Chào mừng đến với EREN HUB!",
+    Content = "Thank you for using the script. Select a tab to activate available scripts!",
+    Duration = 5 -- Notification duration (seconds)
+})
+
+local Tabs = {
+    Main0 = Window:AddTab({ Title = "Thông tin" }),
+    Main1 = Window:AddTab({ Title = "script GAG" }),
+    Main2 = Window:AddTab({ Title = "Script Blox Fruits" }),
+}
+
+Tabs.Main0:AddParagraph({
+    Title = "Thông tin về EREN HUB",
+    Content = "Chào mừng bạn đến với EREN HUB! Đây là nơi cung cấp các script hack game Roblox. Sử dụng các tab 'script GAG' và 'Script Blox Fruits' để chạy các script. Một số script yêu cầu key, hãy kiểm tra mô tả trước khi sử dụng."
+})
+
+Tabs.Main0:AddParagraph({
+    Title = "báo cáo các lỗi và cập nhật script",
+    Content = "script sẽ được cập nhật mỗi tuần. bạn có thể báo cáo các lỗi và yêu cầu cập nhật bằng cách gửi tin nhắn qua tiktok của tôi,nếu bạn là một người tạo ra script bạn có thể gửi nó cho tôi tôi sẽ đưa nó vào script tổng hợp này."
+})
+
+Tabs.Main0:AddButton({
+    Title = "liên hệ tiktok của tôi",
+    Description = "liên hệ báo cáo lỗi và thêm script của bạn",
+    Callback = function()
+        setclipboard("https://www.tiktok.com/@hoang_lq911?_t=ZS-8zUlnOS7bXj&_r=1")
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "speed hub",
+    Description = "cần key",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "no lag hub",
+    Description = "cần key",
+    Callback = function()
+        repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+        local scripts = {
+            [126884695634066] = "https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Garden/Garden-V1.lua",
+            [81440632616906] = "https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/DigEarth/V1.lua",
+        }
+        local url = scripts[game.PlaceId]
+        if url then
+            loadstring(game:HttpGetAsync(url))()
+            loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
+        end
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "nat hub",
+    Description = "cần key",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ArdyBotzz/NatHub/refs/heads/master/NatHub.lua"))()
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "thunderZ Hub",
+    Description = "no key",
+    Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "quantum Hub",
+    Description = "có thể không dùng được nữa",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
+    end
+})
+
+Tabs.Main1:AddButton({
+    Title = "than Hub",
+    Description = "cần key",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/thantzy/thanhub/refs/heads/main/thanv1"))()
+    end
+})
+
+Tabs.Main2:AddButton({
+    Title = "Tuan anh ios",
+    Description = "no key",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AnhTuanDzai-Hub/TuanAnhIOS/refs/heads/main/TuanAnhIOS-Main.Lua"))()
+    end
+})
+
+Tabs.Main2:AddButton({
+    Title = "blueX Hub",
+    Description = "no key(có thể chưa update)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
+    end
+})
+
+Tabs.Main2:AddButton({
+    Title = "AK",
+    Description = "no key(có thể chưa update)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/hehej97/Ak/refs/heads/main/Akfixbug.txt"))()
+    end
+})
+
+Tabs.Main2:AddButton({
+    Title = "REDZ HUB",
+    Description = "no key",
+    Callback = function()
+        local Settings = {
+            JoinTeam = "Pirates"; -- Pirates / Marines
+            Translator = true; -- true / false
+        }
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
+    end
+})

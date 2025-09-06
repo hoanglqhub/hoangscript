@@ -25,11 +25,7 @@ ImageButton.MouseButton1Down:Connect(function()
         Content = "Game controls (movement/jump buttons) may disappear for 5-15 seconds.",
         Duration = 5
     })
-    Fluent:Notify({
-        Title = "Cảm ơn bạn đã sử dụng script của tôi!",
-        Content = "Thank you for using my script! Enjoy the features!",
-        Duration = 5
-    })
+
     Fluent:Notify({
         Title = "thông báo",
         Content = "Các nút điều khiển game (di chuyển/nhảy) có thể biến mất trong 5-15 giây.",

@@ -52,9 +52,9 @@ Fluent:Notify({
 })
 
 local Tabs = {
-    Main0 = Window:AddTab({ Title = "Thông tin" }),
-    Main1 = Window:AddTab({ Title = "script GAG" }),
-    Main2 = Window:AddTab({ Title = "Script Blox Fruits" }),
+    Main0 = Window:AddTab({ Title = "Thông tin❗" }),
+    Main1 = Window:AddTab({ Title = "script GAG✅" }),
+    Main2 = Window:AddTab({ Title = "Script Blox Fruits✅" }),
 }
 
 Tabs.Main0:AddParagraph({

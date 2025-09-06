@@ -2,41 +2,38 @@ local ScreenGui = Instance.new("ScreenGui")
 local ImageButton = Instance.new("ImageButton")
 local UICorner = Instance.new("UICorner")
 
-ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui -- Sử dụng PlayerGui để tránh xung đột
+ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.ResetOnSpawn = false -- Ngăn GUI reset khi respawn
+ScreenGui.ResetOnSpawn = false
 
 ImageButton.Parent = ScreenGui
 ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ImageButton.BorderSizePixel = 0
 ImageButton.Position = UDim2.new(0.10615778, 0, 0.16217947, 0)
-ImageButton.Size = UDim2.new(0, 40, 0, 40)
+ImageButton.Size = UDim2.new(0, 50, 0, 50)
 ImageButton.Draggable = true
 ImageButton.Image = "http://www.roblox.com/asset/?id=107790666255534"
-ImageButton.ZIndex = 10 -- Đảm bảo nút nổi lên trên
+ImageButton.ZIndex = 10
 
 UICorner.CornerRadius = UDim.new(1, 10)
 UICorner.Parent = ImageButton
 
 ImageButton.MouseButton1Down:Connect(function()
     game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
-    -- Thông báo cảnh báo (tiếng Anh)
     Fluent:Notify({
-        Title = "Cảnh Báo",
+        Title = "Notification",
         Content = "Game controls (movement/jump buttons) may disappear for 5-15 seconds.",
-        Duration = 5 -- Notification duration (seconds)
+        Duration = 5
     })
-    -- Thông báo cảm ơn
     Fluent:Notify({
         Title = "Cảm ơn bạn đã sử dụng script của tôi!",
         Content = "Thank you for using my script! Enjoy the features!",
-        Duration = 5 -- Notification duration (seconds)
+        Duration = 5
     })
-    -- Thông báo cảnh báo mới (tiếng Việt)
     Fluent:Notify({
-        Title = "Cảnh Báo",
+        Title = "thông báo",
         Content = "Các nút điều khiển game (di chuyển/nhảy) có thể biến mất trong 5-15 giây.",
-        Duration = 5 -- Notification duration (seconds)
+        Duration = 5
     })
 end)
 
@@ -46,7 +43,7 @@ local Window = Fluent:CreateWindow({
     Title = "EREN HUB",
     SubTitle = "tổng hợp scripts hack game",
     TabWidth = 157,
-    Size = UDim2.fromOffset(540, 400),
+    Size = UDim2.fromOffset(500, 360),
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.End
@@ -55,7 +52,7 @@ local Window = Fluent:CreateWindow({
 Fluent:Notify({
     Title = "Chào mừng đến với EREN HUB!",
     Content = "Thank you for using the script. Select a tab to activate available scripts!",
-    Duration = 5 -- Notification duration (seconds)
+    Duration = 5
 })
 
 local Tabs = {
@@ -117,7 +114,7 @@ Tabs.Main1:AddButton({
 
 Tabs.Main1:AddButton({
     Title = "thunderZ Hub",
-    Description = "no key",
+    Description = "cần key",
     Callback = function()
         loadstring(game:HttpGet('https://raw.githubusercontent.com/ThundarZ/Welcome/refs/heads/main/Main/GaG/Main.lua'))()
     end
@@ -168,8 +165,8 @@ Tabs.Main2:AddButton({
     Description = "no key",
     Callback = function()
         local Settings = {
-            JoinTeam = "Pirates"; -- Pirates / Marines
-            Translator = true; -- true / false
+            JoinTeam = "Pirates";
+            Translator = true;
         }
         loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
     end

@@ -1,11 +1,11 @@
-
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui",  
+local playerGui = player:WaitForChild("PlayerGui", 5)
+
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ExclusiveMenu"
 screenGui.IgnoreGuiInset = true
@@ -104,14 +104,40 @@ menuBackground.BackgroundTransparency = 1
 menuBackground.ZIndex = 0
 menuBackground.Parent = mainFrame
 
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -20, 0, 30)
+titleLabel.Position = UDim2.new(0, 10, 0, 10)
+titleLabel.Text = "Hutao-hoàngHub"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 150)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextSize = 24
+titleLabel.Font = Enum.Font.GothamBlack
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.ZIndex = 2
+titleLabel.Parent = mainFrame
+
+createStroke(titleLabel, 2, Color3.fromRGB(0, 200, 255), 0.3)
+
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(1, -20, 0, 20)
+subtitleLabel.Position = UDim2.new(0, 10, 0, 40)
+subtitleLabel.Text = "Tổng hợp các game"
+subtitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.TextSize = 14
+subtitleLabel.Font = Enum.Font.Gotham
+subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+subtitleLabel.ZIndex = 2
+subtitleLabel.Parent = mainFrame
+
 local tabFrame = Instance.new("ScrollingFrame")
-tabFrame.Size = UDim2.new(0, 157, 0, 280)
+tabFrame.Size = UDim2.new(0, 157, 0, 250)
 tabFrame.Position = UDim2.new(0, 10, 0, 70)
 tabFrame.BackgroundTransparency = 1
 tabFrame.ZIndex = 2
 tabFrame.ScrollBarThickness = 4
 tabFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 255)
-tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0) -- Sẽ tự động cập nhật
+tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 tabFrame.Parent = mainFrame
 
 local tabListLayout = Instance.new("UIListLayout")
@@ -120,18 +146,24 @@ tabListLayout.Padding = UDim.new(0, 5)
 tabListLayout.Parent = tabFrame
 
 local function createTab(name, index)
-    local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -177, 1, -90)
+    local contentFrame = Instance.new("ScrollingFrame")
+    contentFrame.Size = UDim2.new(1, -177, 1, -120)
     contentFrame.Position = UDim2.new(0, 167, 0, 70)
     contentFrame.BackgroundTransparency = 1
     contentFrame.Visible = (index == 1)
     contentFrame.ZIndex = 2
+    contentFrame.ScrollBarThickness = 4
+    contentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 255)
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     contentFrame.Parent = mainFrame
 
     local listLayout = Instance.new("UIListLayout")
     listLayout.SortOrder = Enum.SortOrder.LayoutOrder
     listLayout.Padding = UDim.new(0, 10)
     listLayout.Parent = contentFrame
+    listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        contentFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+    end)
 
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, -10, 0, 40)
@@ -143,7 +175,7 @@ local function createTab(name, index)
     button.TextSize = 14
     button.ZIndex = 10
     button.Parent = tabFrame
-    
+
     tabFrame.CanvasSize = UDim2.new(0, 0, 0, tabListLayout.AbsoluteContentSize.Y)
 
     local corner = Instance.new("UICorner")
@@ -165,7 +197,7 @@ local function createTab(name, index)
     button.MouseButton1Click:Connect(function()
         print("Tab clicked: " .. name)
         for _, content in ipairs(mainFrame:GetChildren()) do
-            if content:IsA("Frame") and content ~= tabFrame then
+            if content:IsA("ScrollingFrame") and content ~= tabFrame then
                 content.Visible = (content == contentFrame)
             end
         end
@@ -267,12 +299,10 @@ local function createButton(contentFrame, title, description, callback)
     end)
 end
 
--- Tạo tab và nội dung từ code mẫu
 local tab1Content = createTab("Info ❗", 1)
 local tab2Content = createTab("script GAG ✅", 2)
 local tab3Content = createTab("Script Blox Fruits ✅", 3)
 
--- Tab 1: Thông tin
 createParagraph(tab1Content, "Thông tin về Game Hub", "Chào mừng bạn đến với Game Hub! Đây là nơi cung cấp các tính năng và công cụ cho game Roblox của bạn. Sử dụng các tab để khám phá các tùy chọn có sẵn.")
 createParagraph(tab1Content, "Báo cáo lỗi và cập nhật", "Các tính năng sẽ được cập nhật thường xuyên. Bạn có thể báo cáo lỗi hoặc yêu cầu cập nhật bằng cách liên hệ với chúng tôi.")
 createButton(tab1Content, "Liên hệ TikTok", "Liên hệ để báo cáo lỗi hoặc đề xuất tính năng", function()
@@ -280,7 +310,6 @@ createButton(tab1Content, "Liên hệ TikTok", "Liên hệ để báo cáo lỗi
     print("TikTok link copied to clipboard!")
 end)
 
--- Tab 2: script GAG
 createButton(tab2Content, "Speed Hub", "Cần key", function()
     print("Loading Speed Hub...")
     repeat wait() until game:IsLoaded()
@@ -317,7 +346,6 @@ createButton(tab2Content, "Quantum Hub", "Có thể không dùng được nữa"
     loadstring(game:HttpGet("https://raw.githubusercontent.com/flazhy/QuantumOnyx/refs/heads/main/QuantumOnyx.lua"))()
 end)
 
--- Tab 3: Script Blox Fruits 
 createButton(tab3Content, "Tuan Anh IOS", "Không cần key", function()
     print("Loading Tuan Anh IOS...")
     repeat wait() until game:IsLoaded()
@@ -342,14 +370,6 @@ createButton(tab3Content, "REDZ Hub", "Không cần key", function()
     }
     loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
 end)
-
-for i = 4, 13 do
-    local newTab = createTab("Tab " .. i .. " 🆕", i)
-    createParagraph(newTab, "Tab " .. i .. " Info", "This is a sample tab for testing. Add your content here!")
-    createButton(newTab, "Sample Feature " .. i, "Test feature", function()
-        print("Sample Feature " .. i .. " activated")
-    end)
-end
 
 local function makeDraggable(frame)
     local dragging, dragInput, dragStart, startPos
@@ -432,7 +452,6 @@ local function runWelcomeAnimation()
     end)
 end
 
--- Xử lý lỗi và chạy animation
 if playerGui then
     local ancestryConnection
     ancestryConnection = screenGui.AncestryChanged:Connect(function()

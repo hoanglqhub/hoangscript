@@ -1,0 +1,489 @@
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui", 5)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CodeMenuVIP"
+screenGui.IgnoreGuiInset = true
+screenGui.Enabled = true
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local function createStroke(parent, thickness, color, transparency)
+    local stroke = Instance.new("UIStroke")
+    stroke.Thickness = thickness
+    stroke.Color = color
+    stroke.Transparency = transparency
+    stroke.Parent = parent
+    return stroke
+end
+
+local function createGradient(parent, colorSequence, rotation)
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = colorSequence
+    gradient.Rotation = rotation or 0
+    gradient.Parent = parent
+    return gradient
+end
+
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Size = UDim2.new(0, 120, 0, 120)
+loadingFrame.Position = UDim2.new(0.5, -60, 0.5, -60)
+loadingFrame.BackgroundTransparency = 1
+loadingFrame.Parent = screenGui
+
+local loadingSpinner = Instance.new("ImageLabel")
+loadingSpinner.Size = UDim2.new(0.8, 0, 0.8, 0)
+loadingSpinner.Position = UDim2.new(0.1, 0, 0.1, 0)
+loadingSpinner.Image = "rbxassetid://103930533102756"
+loadingSpinner.BackgroundTransparency = 1
+loadingSpinner.ImageTransparency = 0.3
+loadingSpinner.Parent = loadingFrame
+
+createGradient(loadingSpinner, ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255))
+})
+
+local welcomeLabel = Instance.new("TextLabel")
+welcomeLabel.Size = UDim2.new(0, 250, 0, 40)
+welcomeLabel.Position = UDim2.new(0.5, -125, 0.5, 40)
+welcomeLabel.Text = "Welcome, " .. player.Name .. "!"
+welcomeLabel.TextColor3 = Color3.fromRGB(255, 255, 150)
+welcomeLabel.BackgroundTransparency = 1
+welcomeLabel.TextSize = 20
+welcomeLabel.Font = Enum.Font.GothamBold
+welcomeLabel.TextTransparency = 1
+welcomeLabel.Parent = loadingFrame
+
+local welcomeStroke = createStroke(welcomeLabel, 2, Color3.fromRGB(0, 200, 255), 1)
+
+local toggleButton = Instance.new("ImageButton")
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 20, 0, 20)
+toggleButton.Image = "rbxassetid://103930533102756"
+toggleButton.BackgroundTransparency = 0.8
+toggleButton.Visible = false
+toggleButton.ZIndex = 10
+toggleButton.Parent = screenGui
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0, 10)
+toggleCorner.Parent = toggleButton
+
+local toggleStroke = createStroke(toggleButton, 2, Color3.fromRGB(0, 255, 200), 0.5)
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 500, 0, 360)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -180)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+mainFrame.BackgroundTransparency = 0.2
+mainFrame.Visible = false
+mainFrame.ClipsDescendants = true
+mainFrame.ZIndex = 1
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 10)
+mainCorner.Parent = mainFrame
+
+createGradient(mainFrame, ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 150))
+}, -45)
+
+local menuBackground = Instance.new("ImageLabel")
+menuBackground.Size = UDim2.new(1, 0, 1, 0)
+menuBackground.Image = "rbxassetid://103930533102756"
+menuBackground.ImageTransparency = 0.6
+menuBackground.BackgroundTransparency = 1
+menuBackground.ZIndex = 0
+menuBackground.Parent = mainFrame
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -20, 0, 30)
+titleLabel.Position = UDim2.new(0, 10, 0, 10)
+titleLabel.Text = "Code Menu VIP"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 150)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextSize = 24
+titleLabel.Font = Enum.Font.GothamBlack
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.ZIndex = 2
+titleLabel.Parent = mainFrame
+
+createStroke(titleLabel, 2, Color3.fromRGB(0, 200, 255), 0.3)
+
+local subtitleLabel = Instance.new("TextLabel")
+subtitleLabel.Size = UDim2.new(1, -20, 0, 20)
+subtitleLabel.Position = UDim2.new(0, 10, 0, 40)
+subtitleLabel.Text = "Tổng hợp các game"
+subtitleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+subtitleLabel.BackgroundTransparency = 1
+subtitleLabel.TextSize = 14
+subtitleLabel.Font = Enum.Font.Gotham
+subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+subtitleLabel.ZIndex = 2
+subtitleLabel.Parent = mainFrame
+
+local tabFrame = Instance.new("ScrollingFrame")
+tabFrame.Size = UDim2.new(0, 157, 0, 250)
+tabFrame.Position = UDim2.new(0, 10, 0, 70)
+tabFrame.BackgroundTransparency = 1
+tabFrame.ZIndex = 2
+tabFrame.ScrollBarThickness = 4
+tabFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 255)
+tabFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+tabFrame.Parent = mainFrame
+
+local tabListLayout = Instance.new("UIListLayout")
+tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tabListLayout.Padding = UDim.new(0, 5)
+tabListLayout.Parent = tabFrame
+
+local function createTab(name, index)
+    local contentFrame = Instance.new("ScrollingFrame")
+    contentFrame.Size = UDim2.new(1, -177, 1, -120)
+    contentFrame.Position = UDim2.new(0, 167, 0, 70)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.Visible = (index == 1)
+    contentFrame.ZIndex = 2
+    contentFrame.ScrollBarThickness = 4
+    contentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 255, 255)
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    contentFrame.Parent = mainFrame
+
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    listLayout.Padding = UDim.new(0, 10)
+    listLayout.Parent = contentFrame
+    listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        contentFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+    end)
+
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 40)
+    button.Text = name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    button.BackgroundTransparency = 0.4
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+    button.ZIndex = 10
+    button.Parent = tabFrame
+
+    tabFrame.CanvasSize = UDim2.new(0, 0, 0, tabListLayout.AbsoluteContentSize.Y)
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = button
+
+    local stroke = createStroke(button, 1.5, Color3.fromRGB(0, 255, 255), 0.6)
+
+    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, tweenInfo, {Size = UDim2.new(1, -10, 0, 44), BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(stroke, tweenInfo, {Transparency = 0.2}):Play()
+    end)
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, tweenInfo, {Size = UDim2.new(1, -10, 0, 40), BackgroundTransparency = 0.4}):Play()
+        TweenService:Create(stroke, tweenInfo, {Transparency = 0.6}):Play()
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        print("Tab clicked: " .. name)
+        for _, content in ipairs(mainFrame:GetChildren()) do
+            if content:IsA("ScrollingFrame") and content ~= tabFrame then
+                content.Visible = (content == contentFrame)
+            end
+        end
+        button.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+        for _, otherButton in ipairs(tabFrame:GetChildren()) do
+            if otherButton:IsA("TextButton") and otherButton ~= button then
+                otherButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            end
+        end
+    end)
+
+    return contentFrame
+end
+
+local function createParagraph(contentFrame, title, content)
+    local paragraphFrame = Instance.new("Frame")
+    paragraphFrame.Size = UDim2.new(1, -10, 0, 100)
+    paragraphFrame.BackgroundTransparency = 1
+    paragraphFrame.ZIndex = 2
+    paragraphFrame.Parent = contentFrame
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0, 20)
+    titleLabel.Text = title
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 150)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextSize = 16
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.ZIndex = 2
+    titleLabel.Parent = paragraphFrame
+
+    local contentLabel = Instance.new("TextLabel")
+    contentLabel.Size = UDim2.new(1, 0, 0, 70)
+    contentLabel.Position = UDim2.new(0, 0, 0, 25)
+    contentLabel.Text = content
+    contentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    contentLabel.BackgroundTransparency = 1
+    contentLabel.TextSize = 14
+    contentLabel.Font = Enum.Font.Gotham
+    contentLabel.TextXAlignment = Enum.TextXAlignment.Left
+    contentLabel.TextWrapped = true
+    contentLabel.ZIndex = 2
+    contentLabel.Parent = paragraphFrame
+end
+
+local function createButton(contentFrame, title, description, callback)
+    local buttonFrame = Instance.new("Frame")
+    buttonFrame.Size = UDim2.new(1, -10, 0, 60)
+    buttonFrame.BackgroundTransparency = 1
+    buttonFrame.ZIndex = 2
+    buttonFrame.Parent = contentFrame
+
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.Text = title
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    button.BackgroundTransparency = 0.4
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+    button.ZIndex = 10
+    button.Parent = buttonFrame
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = button
+
+    local stroke = createStroke(button, 1.5, Color3.fromRGB(0, 255, 255), 0.6)
+
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, 0, 0, 20)
+    descLabel.Position = UDim2.new(0, 0, 0, 40)
+    descLabel.Text = description
+    descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    descLabel.BackgroundTransparency = 1
+    descLabel.TextSize = 12
+    descLabel.Font = Enum.Font.Gotham
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.ZIndex = 2
+    descLabel.Parent = buttonFrame
+
+    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, tweenInfo, {Size = UDim2.new(1, 0, 0, 44), BackgroundTransparency = 0.2}):Play()
+        TweenService:Create(stroke, tweenInfo, {Transparency = 0.2}):Play()
+    end)
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, tweenInfo, {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 0.4}):Play()
+        TweenService:Create(stroke, tweenInfo, {Transparency = 0.6}):Play()
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        print("Button clicked: " .. title)
+        local success, err = pcall(callback)
+        if not success then
+            warn("Error in " .. title .. ": " .. tostring(err))
+        end
+    end)
+end
+
+local guideTab = createTab("Hướng Dẫn", 1)
+createParagraph(guideTab, "Hướng Dẫn Thêm Chức Năng", [[
+Chào mừng bạn đến với Code Menu VIP! Dưới đây là hướng dẫn chi tiết để thêm chức năng vào menu:
+
+1. Thêm đoạn văn (paragraph):
+   - Hàm: createParagraph(contentFrame, title, content)
+   - Tham số:
+     + contentFrame: guideTab (hoặc tab mới bạn tạo).
+     + title: Tiêu đề đoạn văn (chuỗi, ví dụ: "Thông tin").
+     + content: Nội dung đoạn văn (chuỗi, hỗ trợ xuống dòng).
+   - Ví dụ:
+     createParagraph(guideTab, "Thông tin Menu", "Đây là menu hỗ trợ nhiều game Roblox.")
+   - Lưu ý: Mỗi paragraph cao 100px, tự động cuộn nếu nội dung dài.
+
+2. Thêm nút (button):
+   - Hàm: createButton(contentFrame, title, description, callback)
+   - Tham số:
+     + contentFrame: guideTab (hoặc tab mới).
+     + title: Tên nút (chuỗi, ví dụ: "Tăng Tốc").
+     + description: Mô tả nút (chuỗi, hiển thị dưới nút).
+     + callback: Hàm chạy khi nhấn nút (function).
+   - Ví dụ tăng tốc độ nhân vật:
+     createButton(guideTab, "Tăng Tốc", "Tăng tốc độ chạy", function()
+         print("Tăng tốc được kích hoạt!")
+         if game.Players.LocalPlayer.Character then
+             game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
+         end
+     end)
+   - Ví dụ teleport đến vị trí:
+     createButton(guideTab, "Teleport", "Di chuyển đến tọa độ (100, 50, 100)", function()
+         print("Teleporting...")
+         if game.Players.LocalPlayer.Character then
+             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(100, 50, 100)
+         end
+     end)
+   - Lưu ý: Kiểm tra game.Players.LocalPlayer.Character tồn tại để tránh lỗi.
+
+3. Thêm nút với loadstring:
+   - Hàm: Tương tự createButton, nhưng callback dùng loadstring.
+   - Ví dụ:
+     createButton(guideTab, "Script Blox Fruits", "Chạy script không cần key", function()
+         print("Đang tải script...")
+         repeat wait() until game:IsLoaded()
+         local success, err = pcall(function()
+             loadstring(game:HttpGet("https://example.com/script.lua"))()
+         end)
+         if not success then
+             warn("Lỗi loadstring: " .. err)
+         end
+     end)
+   - Lưu ý:
+     + Kiểm tra URL hợp lệ (mở trên trình duyệt) trước khi dùng.
+     + Dùng repeat wait() until game:IsLoaded() để đảm bảo game sẵn sàng.
+     + Loadstring có rủi ro bảo mật, kiểm tra kỹ script và nguồn.
+     + Có thể vi phạm Roblox ToS, sử dụng cẩn thận.
+
+4. Thêm tab mới:
+   - Hàm: createTab(name, index)
+   - Tham số:
+     + name: Tên tab (chuỗi, ví dụ: "Script Mới").
+     + index: Thứ tự tab (số, ví dụ: 2, 3, ...).
+   - Ví dụ:
+     local newTab = createTab("Script Mới", 2)
+     createParagraph(newTab, "Thông tin", "Tab mới cho script.")
+     createButton(newTab, "Chạy Script", "Tải script game", function()
+         print("Chạy script mới")
+         repeat wait() until game:IsLoaded()
+         loadstring(game:HttpGet("https://example.com/new.lua"))()
+     end)
+   - Lưu ý: tabFrame có ScrollingFrame, hỗ trợ nhiều tab (tự động cuộn nếu vượt 250px).
+
+5. Debug và tối ưu:
+   - Kiểm tra lỗi:
+     + Xem Output trong Roblox Studio:
+       - "Tab clicked: [name]" khi chuyển tab.
+       - "Button clicked: [title]" khi nhấn nút.
+       - "Error in [title]: [error]" nếu nút lỗi.
+     + Nếu loadstring thất bại, kiểm tra URL (HTTP 404, 403,...) hoặc Roblox chặn HttpGet.
+   - Giao diện tràn:
+     + contentFrame có ScrollingFrame, tự động cuộn nếu nội dung vượt 240px.
+     + Tăng mainFrame.Size (ví dụ: UDim2.new(0, 600, 0, 400)) nếu cần thêm không gian.
+     + Giảm TextSize của paragraph/button (ví dụ: 12 thay vì 14) nếu chữ quá to.
+   - Tối ưu:
+     + Thêm wait() hoặc kiểm tra điều kiện (như game:IsLoaded()) trước khi chạy logic.
+     + Dùng pcall để bọc callback, tránh lỗi phá hủy menu.
+     + Test trên PC và mobile để đảm bảo giao diện mượt.
+
+6. Lưu ý quan trọng:
+   - Loadstring từ URL không an toàn, có thể chứa mã độc hoặc vi phạm Roblox ToS.
+   - Kiểm tra script kỹ trước khi dùng, ưu tiên nhúng code ngắn nếu có thể.
+   - Nếu thêm nhiều nội dung, đảm bảo index của tab không trùng (2, 3, 4,...).
+   - Liên hệ nhà phát triển menu nếu cần hỗ trợ thêm hoặc báo lỗi.
+
+Hãy thử thêm nội dung vào guideTab hoặc tạo tab mới theo ví dụ trên. Chúc bạn tạo menu tuyệt vời! 😎
+]])
+
+local function makeDraggable(frame)
+    local dragging, dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            local connection
+            connection = input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                    connection:Disconnect()
+                end
+            end)
+        end
+    end)
+    local dragConnection
+    dragConnection = UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            dragInput = input
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    frame.AncestryChanged:Connect(function()
+        if not frame:IsDescendantOf(game) then
+            dragConnection:Disconnect()
+        end
+    end)
+end
+
+makeDraggable(mainFrame)
+makeDraggable(toggleButton)
+
+local tweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+    TweenService:Create(mainFrame, tweenInfo, {BackgroundTransparency = mainFrame.Visible and 0.2 or 1, Size = mainFrame.Visible and UDim2.new(0, 500, 0, 360) or UDim2.new(0, 450, 0, 320)}):Play()
+end)
+
+toggleButton.MouseEnter:Connect(function()
+    TweenService:Create(toggleButton, tweenInfo, {ImageTransparency = 0.2}):Play()
+    TweenService:Create(toggleStroke, tweenInfo, {Transparency = 0.2}):Play()
+end)
+toggleButton.MouseLeave:Connect(function()
+    TweenService:Create(toggleButton, tweenInfo, {ImageTransparency = 0}):Play()
+    TweenService:Create(toggleStroke, tweenInfo, {Transparency = 0.5}):Play()
+end)
+
+local function runWelcomeAnimation()
+    if not playerGui then
+        warn("Error: PlayerGui not found!")
+        return
+    end
+
+    local spinnerTween = TweenService:Create(loadingSpinner, TweenInfo.new(1.2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1), {Rotation = 360})
+    spinnerTween:Play()
+
+    local welcomeTweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    local welcomeTween = TweenService:Create(welcomeLabel, welcomeTweenInfo, {TextTransparency = 0, Size = UDim2.new(0, 270, 0, 48)})
+    local welcomeStrokeTween = TweenService:Create(welcomeStroke, welcomeTweenInfo, {Transparency = 0})
+    welcomeTween:Play()
+    welcomeStrokeTween:Play()
+
+    task.wait(2)
+    local fadeOutTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    local fadeOut = TweenService:Create(loadingFrame, fadeOutTweenInfo, {BackgroundTransparency = 1})
+    local spinnerFade = TweenService:Create(loadingSpinner, fadeOutTweenInfo, {ImageTransparency = 1})
+    local welcomeFade = TweenService:Create(welcomeLabel, fadeOutTweenInfo, {TextTransparency = 1})
+    local welcomeStrokeFade = TweenService:Create(welcomeStroke, fadeOutTweenInfo, {Transparency = 1})
+    fadeOut:Play()
+    spinnerFade:Play()
+    welcomeFade:Play()
+    welcomeStrokeFade:Play()
+    fadeOut.Completed:Connect(function()
+        spinnerTween:Cancel()
+        loadingFrame:Destroy()
+        toggleButton.Visible = true
+    end)
+end
+
+if playerGui then
+    local ancestryConnection
+    ancestryConnection = screenGui.AncestryChanged:Connect(function()
+        if not screenGui:IsDescendantOf(game) then
+            ancestryConnection:Disconnect()
+        end
+    end)
+    task.spawn(runWelcomeAnimation)
+else
+    warn("Error: PlayerGui not found!")
+end

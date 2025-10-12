@@ -300,12 +300,13 @@ local function createButton(contentFrame, title, description, callback)
 end
 
 local tab1Content = createTab("Info ❗", 1)
-local tab2Content = createTab("script GAG ✅", 2)
-local tab3Content = createTab("Script Blox Fruits ✅", 3)
+local tab2Content = createTab("script GAG ", 2)
+local tab3Content = createTab("Script Blox Fruits ", 3)
+local tab4Content = createTab("plant Vs brainrot", 4)
 
 createParagraph(tab1Content, "Thông tin về Game Hub", "Chào mừng bạn đến với Hutao-Hoàng Hub! Đây là nơi cung cấp các tính năng và công cụ cho game Roblox của bạn. Sử dụng các tab để khám phá các tùy chọn có sẵn.")
 createParagraph(tab1Content, "Báo cáo lỗi và cập nhật", "Các tính năng sẽ được cập nhật thường xuyên. Bạn có thể báo cáo lỗi hoặc yêu cầu cập nhật bằng cách liên hệ với chúng tôi.")
-createButton(tab1Content, "Liên hệ TikTok", "Liên hệ để báo cáo lỗi hoặc đề xuất tính năng", function()
+createButton(tab1Content, "TikTok", "người tạo ra script", function()
     setclipboard("https://www.tiktok.com/@hoang_lq911?_t=ZS-8zUlnOS7bXj&_r=1")
     print("TikTok link copied to clipboard!")
 end)
@@ -314,21 +315,6 @@ createButton(tab2Content, "Speed Hub", "Cần key", function()
     print("Loading Speed Hub...")
     repeat wait() until game:IsLoaded()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-end)
-createButton(tab2Content, "No Lag Hub", "Cần key", function()
-    print("Loading No Lag Hub...")
-    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-    local scripts = {
-        [126884695634066] = "https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/Garden/Garden-V1.lua",
-        [81440632616906] = "https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/DigEarth/V1.lua",
-    }
-    local url = scripts[game.PlaceId]
-    if url then
-        loadstring(game:HttpGetAsync(url))()
-        loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/NoLag-id/No-Lag-HUB/refs/heads/main/untitled.lua"))()
-    else
-        warn("No Lag Hub: No script found for this game!")
-    end
 end)
 createButton(tab2Content, "Nat Hub", "Cần key", function()
     print("Loading Nat Hub...")
@@ -356,12 +342,7 @@ createButton(tab3Content, "BlueX Hub", "Không cần key (có thể chưa update
     repeat wait() until game:IsLoaded()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Dev-BlueX/BlueX-Hub/refs/heads/main/Main.lua"))()
 end)
-createButton(tab3Content, "AK", "Không cần key (có thể chưa update)", function()
-    print("Loading AK...")
-    repeat wait() until game:IsLoaded()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/hehej97/Ak/refs/heads/main/Akfixbug.txt"))()
-end)
-createButton(tab3Content, "REDZ Hub", "Không cần key", function()
+createButton(tab3Content, "REDZ Hub", "chưa update", function()
     print("Loading REDZ Hub...")
     repeat wait() until game:IsLoaded()
     local Settings = {
@@ -369,6 +350,16 @@ createButton(tab3Content, "REDZ Hub", "Không cần key", function()
         Translator = true
     }
     loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
+end)
+createButton(tab3Content, "DatTHG", "không cần key", function()
+    print("Loading DatTHG Hub...")
+    repeat wait() until game:IsLoaded()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/DatThg/refs/heads/main/DatThgV1"))()
+end)
+createButton(tab4Content, "Speed Hub", "Cần key", function()
+    print("Loading Speed Hub...")
+    repeat wait() until game:IsLoaded()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 end)
 
 local function makeDraggable(frame)

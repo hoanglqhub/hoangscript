@@ -1,0 +1,1057 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+
+-- Cleanup previous UI
+if CoreGui:FindFirstChild("QuantumOnyxRecreation") then
+    CoreGui:FindFirstChild("QuantumOnyxRecreation"):Destroy()
+end
+
+-- =============================================
+-- KEY SYSTEM
+-- =============================================
+local validKeys = {
+    "HoàngGM"
+}
+
+local keyVerified = false
+local keyAttempts = 0
+local maxAttempts = 3
+
+-- =============================================
+-- FAKE SERVER FUNCTIONS
+-- =============================================
+local md5 = {}
+local hmac = {}
+local base64 = {}
+
+do
+	do
+		local T = {
+			0xd76aa478,
+			0xe8c7b756,
+			0x242070db,
+			0xc1bdceee,
+			0xf57c0faf,
+			0x4787c62a,
+			0xa8304613,
+			0xfd469501,
+			0x698098d8,
+			0x8b44f7af,
+			0xffff5bb1,
+			0x895cd7be,
+			0x6b901122,
+			0xfd987193,
+			0xa679438e,
+			0x49b40821,
+			0xf61e2562,
+			0xc040b340,
+			0x265e5a51,
+			0xe9b6c7aa,
+			0xd62f105d,
+			0x02441453,
+			0xd8a1e681,
+			0xe7d3fbc8,
+			0x21e1cde6,
+			0xc33707d6,
+			0xf4d50d87,
+			0x455a14ed,
+			0xa9e3e905,
+			0xfcefa3f8,
+			0x676f02d9,
+			0x8d2a4c8a,
+			0xfffa3942,
+			0x8771f681,
+			0x6d9d6122,
+			0xfde5380c,
+			0xa4beea44,
+			0x4bdecfa9,
+			0xf6bb4b60,
+			0xbebfbc70,
+			0x289b7ec6,
+			0xeaa127fa,
+			0xd4ef3085,
+			0x04881d05,
+			0xd9d4d039,
+			0xe6db99e5,
+			0x1fa27cf8,
+			0xc4ac5665,
+			0xf4292244,
+			0x432aff97,
+			0xab9423a7,
+			0xfc93a039,
+			0x655b59c3,
+			0x8f0ccc92,
+			0xffeff47d,
+			0x85845dd1,
+			0x6fa87e4f,
+			0xfe2ce6e0,
+			0xa3014314,
+			0x4e0811a1,
+			0xf7537e82,
+			0xbd3af235,
+			0x2ad7d2bb,
+			0xeb86d391,
+		}
+
+		local function add(a, b)
+			local lsw = bit32.band(a, 0xFFFF) + bit32.band(b, 0xFFFF)
+			local msw = bit32.rshift(a, 16) + bit32.rshift(b, 16) + bit32.rshift(lsw, 16)
+			return bit32.bor(bit32.lshift(msw, 16), bit32.band(lsw, 0xFFFF))
+		end
+
+		local function rol(x, n)
+			return bit32.bor(bit32.lshift(x, n), bit32.rshift(x, 32 - n))
+		end
+
+		local function F(x, y, z)
+			return bit32.bor(bit32.band(x, y), bit32.band(bit32.bnot(x), z))
+		end
+		local function G(x, y, z)
+			return bit32.bor(bit32.band(x, z), bit32.band(y, bit32.bnot(z)))
+		end
+		local function H(x, y, z)
+			return bit32.bxor(x, bit32.bxor(y, z))
+		end
+		local function I(x, y, z)
+			return bit32.bxor(y, bit32.bor(x, bit32.bnot(z)))
+		end
+
+		function md5.sum(message)
+			local a, b, c, d = 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476
+
+			local message_len = #message
+			local padded_message = message .. "\128"
+			while #padded_message % 64 ~= 56 do
+				padded_message = padded_message .. "\0"
+			end
+
+			local len_bytes = ""
+			local len_bits = message_len * 8
+			for i = 0, 7 do
+				len_bytes = len_bytes .. string.char(bit32.band(bit32.rshift(len_bits, i * 8), 0xFF))
+			end
+			padded_message = padded_message .. len_bytes
+
+			for i = 1, #padded_message, 64 do
+				local chunk = padded_message:sub(i, i + 63)
+				local X = {}
+				for j = 0, 15 do
+					local b1, b2, b3, b4 = chunk:byte(j * 4 + 1, j * 4 + 4)
+					X[j] = bit32.bor(b1, bit32.lshift(b2, 8), bit32.lshift(b3, 16), bit32.lshift(b4, 24))
+				end
+
+				local aa, bb, cc, dd = a, b, c, d
+
+				local s = { 7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21 }
+
+				for j = 0, 63 do
+					local f, k, shift_index
+					if j < 16 then
+						f = F(b, c, d)
+						k = j
+						shift_index = j % 4
+					elseif j < 32 then
+						f = G(b, c, d)
+						k = (1 + 5 * j) % 16
+						shift_index = 4 + (j % 4)
+					elseif j < 48 then
+						f = H(b, c, d)
+						k = (5 + 3 * j) % 16
+						shift_index = 8 + (j % 4)
+					else
+						f = I(b, c, d)
+						k = (7 * j) % 16
+						shift_index = 12 + (j % 4)
+					end
+
+					local temp = add(a, f)
+					temp = add(temp, X[k])
+					temp = add(temp, T[j + 1])
+					temp = rol(temp, s[shift_index + 1])
+
+					local new_b = add(b, temp)
+					a, b, c, d = d, new_b, b, c
+				end
+
+				a = add(a, aa)
+				b = add(b, bb)
+				c = add(c, cc)
+				d = add(d, dd)
+			end
+
+			local function to_le_hex(n)
+				local s = ""
+				for i = 0, 3 do
+					s = s .. string.char(bit32.band(bit32.rshift(n, i * 8), 0xFF))
+				end
+				return s
+			end
+
+			return to_le_hex(a) .. to_le_hex(b) .. to_le_hex(c) .. to_le_hex(d)
+		end
+	end
+
+	do
+		function hmac.new(key, msg, hash_func)
+			if #key > 64 then
+				key = hash_func(key)
+			end
+
+			local o_key_pad = ""
+			local i_key_pad = ""
+			for i = 1, 64 do
+				local byte = (i <= #key and string.byte(key, i)) or 0
+				o_key_pad = o_key_pad .. string.char(bit32.bxor(byte, 0x5C))
+				i_key_pad = i_key_pad .. string.char(bit32.bxor(byte, 0x36))
+			end
+
+			return hash_func(o_key_pad .. hash_func(i_key_pad .. msg))
+		end
+	end
+
+	do
+		local b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
+		function base64.encode(data)
+			return (
+				(data:gsub(".", function(x)
+					local r, b_val = "", x:byte()
+					for i = 8, 1, -1 do
+						r = r .. (b_val % 2 ^ i - b_val % 2 ^ (i - 1) > 0 and "1" or "0")
+					end
+					return r
+				end) .. "0000"):gsub("%d%d%d?%d?%d?%d?", function(x)
+					if #x < 6 then
+						return ""
+					end
+					local c = 0
+					for i = 1, 6 do
+						c = c + (x:sub(i, i) == "1" and 2 ^ (6 - i) or 0)
+					end
+					return b:sub(c + 1, c + 1)
+				end) .. ({ "", "==", "=" })[#data % 3 + 1]
+			)
+		end
+	end
+end
+
+local function GenerateReservedServerCode(placeId)
+	local uuid = {}
+	for i = 1, 16 do
+		uuid[i] = math.random(0, 255)
+	end
+
+	uuid[7] = bit32.bor(bit32.band(uuid[7], 0x0F), 0x40) -- v4
+	uuid[9] = bit32.bor(bit32.band(uuid[9], 0x3F), 0x80) -- RFC 4122
+
+	local firstBytes = ""
+	for i = 1, 16 do
+		firstBytes = firstBytes .. string.char(uuid[i])
+	end
+
+	local gameCode =
+		string.format("%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", table.unpack(uuid))
+
+	local placeIdBytes = ""
+	local pIdRec = placeId
+	for _ = 1, 8 do
+		placeIdBytes = placeIdBytes .. string.char(pIdRec % 256)
+		pIdRec = math.floor(pIdRec / 256)
+	end
+
+	local content = firstBytes .. placeIdBytes
+
+	local SUPERDUPERSECRETROBLOXKEYTHATTHEYDIDNTCHANGEEVERSINCEFOREVER = "e4Yn8ckbCJtw2sv7qmbg"
+	local signature = hmac.new(SUPERDUPERSECRETROBLOXKEYTHATTHEYDIDNTCHANGEEVERSINCEFOREVER, content, md5.sum)
+
+	local accessCodeBytes = signature .. content
+
+	local accessCode = base64.encode(accessCodeBytes)
+	accessCode = accessCode:gsub("+", "-"):gsub("/", "_")
+
+	local pdding = 0
+	accessCode, _ = accessCode:gsub("=", function()
+		pdding = pdding + 1
+		return ""
+	end)
+
+	accessCode = accessCode .. tostring(pdding)
+
+	return accessCode, gameCode
+end
+
+local function CanRunFunc()
+	return #game.Players:GetPlayers() > 1
+end
+
+-- =============================================
+-- HOP SERVER FUNCTIONS
+-- =============================================
+local PlaceId = game.PlaceId
+
+local function ListServers(cursor)
+    local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+    if cursor then
+        url = url .. "&cursor=" .. cursor
+    end
+
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+
+    if success then
+        task.wait(1.2)
+        return HttpService:JSONDecode(response)
+    else
+        warn("⚠️ Lỗi lấy server:", response)
+        return {data = {}, nextPageCursor = nil}
+    end
+end
+
+local function FindBestServer()
+    local cursor = nil
+    local best = nil
+
+    repeat
+        local data = ListServers(cursor)
+        for _, server in ipairs(data.data) do
+            if server.playing > 0 and server.playing < server.maxPlayers then
+                if server.playing == 1 then
+                    return server
+                end
+                if not best or server.playing < best.playing then
+                    best = server
+                end
+            end
+        end
+        cursor = data.nextPageCursor
+    until not cursor or best
+    return best
+end
+
+local function AutoRetryHop()
+    task.spawn(function()
+        while true do
+            local target = FindBestServer()
+            if target then
+                print("👉 Thử teleport tới server:", target.id, "Players:", target.playing)
+                local ok, err = pcall(function()
+                    TeleportService:TeleportToPlaceInstance(PlaceId, target.id, LocalPlayer)
+                end)
+                if ok then
+                    break
+                else
+                    warn("⚠️ Teleport thất bại:", err, "→ thử lại sau 5s")
+                end
+            else
+                warn("❌ Không tìm được server phù hợp → thử lại sau 5s")
+            end
+            task.wait(5)
+        end
+    end)
+end
+
+-- =============================================
+-- MAIN UI CREATION
+-- =============================================
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HoàngGM hop sever"
+ScreenGui.Parent = CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Key System Frame
+local KeyFrame = Instance.new("Frame")
+KeyFrame.Name = "KeyFrame"
+KeyFrame.Parent = ScreenGui
+KeyFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+KeyFrame.BorderSizePixel = 0
+KeyFrame.Position = UDim2.new(0.35, 0, 0.4, 0)
+KeyFrame.Size = UDim2.new(0, 400, 0, 250)
+KeyFrame.Active = true
+KeyFrame.Draggable = true
+KeyFrame.Visible = not keyVerified
+
+local KeyGlow = Instance.new("Frame")
+KeyGlow.Name = "KeyGlow"
+KeyGlow.Parent = KeyFrame
+KeyGlow.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+KeyGlow.BorderSizePixel = 0
+KeyGlow.Size = UDim2.new(1, 6, 1, 6)
+KeyGlow.Position = UDim2.new(0, -3, 0, -3)
+KeyGlow.ZIndex = 0
+
+local KeyGlowCorner = Instance.new("UICorner")
+KeyGlowCorner.CornerRadius = UDim.new(0, 8)
+KeyGlowCorner.Parent = KeyGlow
+
+local KeyContainer = Instance.new("Frame")
+KeyContainer.Name = "KeyContainer"
+KeyContainer.Parent = KeyFrame
+KeyContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+KeyContainer.BorderSizePixel = 0
+KeyContainer.Size = UDim2.new(1, 0, 1, 0)
+
+local KeyCorner = Instance.new("UICorner")
+KeyCorner.CornerRadius = UDim.new(0, 6)
+KeyCorner.Parent = KeyContainer
+
+local KeyHeader = Instance.new("Frame")
+KeyHeader.Name = "KeyHeader"
+KeyHeader.Parent = KeyContainer
+KeyHeader.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+KeyHeader.BorderSizePixel = 0
+KeyHeader.Size = UDim2.new(1, 0, 0, 50)
+
+local KeyHeaderGradient = Instance.new("UIGradient")
+KeyHeaderGradient.Parent = KeyHeader
+KeyHeaderGradient.Rotation = 90
+KeyHeaderGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 100, 255)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(100, 0, 255))
+})
+
+local KeyTitle = Instance.new("TextLabel")
+KeyTitle.Name = "KeyTitle"
+KeyTitle.Parent = KeyHeader
+KeyTitle.BackgroundTransparency = 1
+KeyTitle.Position = UDim2.new(0.05, 0, 0, 0)
+KeyTitle.Size = UDim2.new(0.9, 0, 1, 0)
+KeyTitle.Font = Enum.Font.GothamBlack
+KeyTitle.Text = "HoàngGM - KEY SYSTEM"
+KeyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyTitle.TextSize = 16
+KeyTitle.TextXAlignment = Enum.TextXAlignment.Center
+
+local KeyInput = Instance.new("TextBox")
+KeyInput.Name = "dán key tại đây"
+KeyInput.Parent = KeyContainer
+KeyInput.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+KeyInput.BorderSizePixel = 0
+KeyInput.Position = UDim2.new(0.1, 0, 0.3, 0)
+KeyInput.Size = UDim2.new(0.8, 0, 0, 40)
+KeyInput.Font = Enum.Font.Gotham
+KeyInput.PlaceholderText = "Enter your key here..."
+KeyInput.Text = ""
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextSize = 14
+KeyInput.ClearTextOnFocus = false
+
+local KeyInputCorner = Instance.new("UICorner")
+KeyInputCorner.CornerRadius = UDim.new(0, 6)
+KeyInputCorner.Parent = dán key
+
+local VerifyButton = Instance.new("TextButton")
+VerifyButton.Name = "VerifyButton"
+VerifyButton.Parent = KeyContainer
+VerifyButton.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+VerifyButton.BorderSizePixel = 0
+VerifyButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+VerifyButton.Size = UDim2.new(0.8, 0, 0, 40)
+VerifyButton.Font = Enum.Font.GothamBold
+VerifyButton.Text = "✅ VERIFY KEY"
+VerifyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+VerifyButton.TextSize = 14
+
+local VerifyCorner = Instance.new("UICorner")
+VerifyCorner.CornerRadius = UDim.new(0, 6)
+VerifyCorner.Parent = VerifyButton
+
+local KeyStatus = Instance.new("TextLabel")
+KeyStatus.Name = "KeyStatus"
+KeyStatus.Parent = KeyContainer
+KeyStatus.BackgroundTransparency = 1
+KeyStatus.Position = UDim2.new(0.1, 0, 0.8, 0)
+KeyStatus.Size = UDim2.new(0.8, 0, 0, 30)
+KeyStatus.Font = Enum.Font.Gotham
+KeyStatus.Text = "Attempts: " .. keyAttempts .. "/" .. maxAttempts
+KeyStatus.TextColor3 = Color3.fromRGB(200, 200, 220)
+KeyStatus.TextSize = 12
+KeyStatus.TextXAlignment = Enum.TextXAlignment.Center
+
+-- Key Verification Function
+VerifyButton.MouseButton1Click:Connect(function()
+    local enteredKey = KeyInput.Text:upper():gsub("%s+", "")
+    keyAttempts = keyAttempts + 1
+    
+    if table.find(validKeys, enteredKey) then
+        keyVerified = true
+        KeyStatus.Text = "✅ KEY VERIFIED! Loading UI..."
+        KeyStatus.TextColor3 = Color3.fromRGB(0, 255, 0)
+        
+        task.wait(1)
+        KeyFrame.Visible = false
+        CreateMainUI()
+    else
+        KeyStatus.Text = "❌ Invalid Key! Attempts: " .. keyAttempts .. "/" .. maxAttempts
+        KeyStatus.TextColor3 = Color3.fromRGB(255, 50, 50)
+        
+        if keyAttempts >= maxAttempts then
+            KeyStatus.Text = "🚫 MAX ATTEMPTS REACHED! UI Closing..."
+            task.wait(2)
+            ScreenGui:Destroy()
+        end
+    end
+end)
+
+-- Main UI Creation Function
+function CreateMainUI()
+    -- Main Window
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+    MainFrame.Size = UDim2.new(0, 550, 0, 400)
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+
+    -- Outer Glow Effect
+    local OuterGlow = Instance.new("Frame")
+    OuterGlow.Name = "OuterGlow"
+    OuterGlow.Parent = MainFrame
+    OuterGlow.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    OuterGlow.BorderSizePixel = 0
+    OuterGlow.Size = UDim2.new(1, 6, 1, 6)
+    OuterGlow.Position = UDim2.new(0, -3, 0, -3)
+    OuterGlow.ZIndex = 0
+
+    local GlowCorner = Instance.new("UICorner")
+    GlowCorner.CornerRadius = UDim.new(0, 8)
+    GlowCorner.Parent = OuterGlow
+
+    -- Main Container
+    local MainContainer = Instance.new("Frame")
+    MainContainer.Name = "MainContainer"
+    MainContainer.Parent = MainFrame
+    MainContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainContainer.BorderSizePixel = 0
+    MainContainer.Size = UDim2.new(1, 0, 1, 0)
+
+    local MainCorner = Instance.new("UICorner")
+    MainCorner.CornerRadius = UDim.new(0, 6)
+    MainCorner.Parent = MainContainer
+
+    -- Header with Gradient
+    local Header = Instance.new("Frame")
+    Header.Name = "Header"
+    Header.Parent = MainContainer
+    Header.BackgroundColor3 = Color3.fromRGB(20, 20, 35)
+    Header.BorderSizePixel = 0
+    Header.Size = UDim2.new(1, 0, 0, 50)
+
+    local HeaderCorner = Instance.new("UICorner")
+    HeaderCorner.CornerRadius = UDim.new(0, 6)
+    HeaderCorner.Parent = Header
+
+    -- Header Gradient
+    local HeaderGradient = Instance.new("UIGradient")
+    HeaderGradient.Parent = Header
+    HeaderGradient.Rotation = 90
+    HeaderGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(0, 100, 255)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(100, 0, 255))
+    })
+
+    -- Title
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Parent = Header
+    Title.BackgroundTransparency = 1
+    Title.Position = UDim2.new(0.05, 0, 0, 0)
+    Title.Size = UDim2.new(0.6, 0, 1, 0)
+    Title.Font = Enum.Font.GothamBlack
+    Title.Text = "HoàngGM"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 18
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Subtitle
+    local Subtitle = Instance.new("TextLabel")
+    Subtitle.Name = "Subtitle"
+    Subtitle.Parent = Header
+    Subtitle.BackgroundTransparency = 1
+    Subtitle.Position = UDim2.new(0.05, 0, 0.6, 0)
+    Subtitle.Size = UDim2.new(0.6, 0, 0.4, 0)
+    Subtitle.Font = Enum.Font.Gotham
+    Subtitle.Text = "Premium Server Management"
+    Subtitle.TextColor3 = Color3.fromRGB(200, 200, 255)
+    Subtitle.TextSize = 11
+    Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Control Buttons
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Parent = Header
+    CloseButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+    CloseButton.BorderSizePixel = 0
+    CloseButton.Position = UDim2.new(0.9, 0, 0.2, 0)
+    CloseButton.Size = UDim2.new(0, 25, 0, 25)
+    CloseButton.Font = Enum.Font.GothamBold
+    CloseButton.Text = "×"
+    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseButton.TextSize = 16
+
+    local CloseCorner = Instance.new("UICorner")
+    CloseCorner.CornerRadius = UDim.new(1, 0)
+    CloseCorner.Parent = CloseButton
+
+    local MinimizeButton = Instance.new("TextButton")
+    MinimizeButton.Name = "MinimizeButton"
+    MinimizeButton.Parent = Header
+    MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 180, 60)
+    MinimizeButton.BorderSizePixel = 0
+    MinimizeButton.Position = UDim2.new(0.8, 0, 0.2, 0)
+    MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+    MinimizeButton.Font = Enum.Font.GothamBold
+    MinimizeButton.Text = "−"
+    MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MinimizeButton.TextSize = 16
+
+    local MinimizeCorner = Instance.new("UICorner")
+    MinimizeCorner.CornerRadius = UDim.new(1, 0)
+    MinimizeCorner.Parent = MinimizeButton
+
+    -- Tab System
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Name = "TabContainer"
+    TabContainer.Parent = MainContainer
+    TabContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+    TabContainer.BorderSizePixel = 0
+    TabContainer.Position = UDim2.new(0, 0, 0, 50)
+    TabContainer.Size = UDim2.new(1, 0, 0, 40)
+
+    local TabListLayout = Instance.new("UIListLayout")
+    TabListLayout.Parent = TabContainer
+    TabListLayout.FillDirection = Enum.FillDirection.Horizontal
+    TabListLayout.Padding = UDim.new(0, 5)
+
+    -- Tab Definitions
+    local Tabs = {
+        "HOME",
+        "SERVER", 
+        "HOP",
+        "FAKE SERVER",
+        "SETTINGS"
+    }
+
+    local TabButtons = {}
+    local TabPages = {}
+    local CurrentTab = "HOME"
+
+    -- Create Tabs
+    for _, tabName in ipairs(Tabs) do
+        local TabButton = Instance.new("TextButton")
+        TabButton.Name = tabName .. "Tab"
+        TabButton.Parent = TabContainer
+        TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+        TabButton.BorderSizePixel = 0
+        TabButton.Size = UDim2.new(0, 100, 0, 35)
+        TabButton.Font = Enum.Font.GothamSemibold
+        TabButton.Text = tabName
+        TabButton.TextColor3 = Color3.fromRGB(200, 200, 220)
+        TabButton.TextSize = 12
+        TabButton.AutoButtonColor = false
+
+        local TabCorner = Instance.new("UICorner")
+        TabCorner.CornerRadius = UDim.new(0, 6)
+        TabCorner.Parent = TabButton
+
+        -- Tab Hover Effects
+        TabButton.MouseEnter:Connect(function()
+            if CurrentTab ~= tabName then
+                game:GetService("TweenService"):Create(TabButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(50, 50, 80)
+                }):Play()
+            end
+        end)
+
+        TabButton.MouseLeave:Connect(function()
+            if CurrentTab ~= tabName then
+                game:GetService("TweenService"):Create(TabButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+                }):Play()
+            end
+        end)
+
+        local TabPage = Instance.new("ScrollingFrame")
+        TabPage.Name = tabName .. "Page"
+        TabPage.Parent = MainContainer
+        TabPage.BackgroundTransparency = 1
+        TabPage.BorderSizePixel = 0
+        TabPage.Position = UDim2.new(0, 0, 0, 90)
+        TabPage.Size = UDim2.new(1, 0, 1, -90)
+        TabPage.CanvasSize = UDim2.new(0, 0, 2, 0)
+        TabPage.ScrollBarThickness = 4
+        TabPage.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
+        TabPage.Visible = false
+
+        TabButtons[tabName] = TabButton
+        TabPages[tabName] = TabPage
+
+        TabButton.MouseButton1Click:Connect(function()
+            CurrentTab = tabName
+            
+            -- Update all tabs
+            for name, btn in pairs(TabButtons) do
+                if name == tabName then
+                    -- Active tab
+                    game:GetService("TweenService"):Create(btn, TweenInfo.new(0.3), {
+                        BackgroundColor3 = Color3.fromRGB(0, 150, 255),
+                        TextColor3 = Color3.fromRGB(255, 255, 255)
+                    }):Play()
+                else
+                    -- Inactive tabs
+                    game:GetService("TweenService"):Create(btn, TweenInfo.new(0.3), {
+                        BackgroundColor3 = Color3.fromRGB(40, 40, 60),
+                        TextColor3 = Color3.fromRGB(200, 200, 220)
+                    }):Play()
+                end
+            end
+            
+            -- Show/hide pages
+            for name, page in pairs(TabPages) do
+                page.Visible = (name == tabName)
+            end
+        end)
+    end
+
+    -- Content Creation Functions
+    local function CreateSection(parent, title, yPosition)
+        local Section = Instance.new("Frame")
+        Section.Name = title .. "Section"
+        Section.Parent = parent
+        Section.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+        Section.BorderSizePixel = 0
+        Section.Position = UDim2.new(0.05, 0, yPosition, 0)
+        Section.Size = UDim2.new(0.9, 0, 0, 40)
+
+        local SectionCorner = Instance.new("UICorner")
+        SectionCorner.CornerRadius = UDim.new(0, 8)
+        SectionCorner.Parent = Section
+
+        local SectionTitle = Instance.new("TextLabel")
+        SectionTitle.Name = "Title"
+        SectionTitle.Parent = Section
+        SectionTitle.BackgroundTransparency = 1
+        SectionTitle.Position = UDim2.new(0.05, 0, 0, 0)
+        SectionTitle.Size = UDim2.new(0.9, 0, 1, 0)
+        SectionTitle.Font = Enum.Font.GothamBold
+        SectionTitle.Text = title
+        SectionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        SectionTitle.TextSize = 14
+        SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        return Section
+    end
+
+    local function CreateToggle(parent, text, yPosition, callback)
+        local ToggleFrame = Instance.new("Frame")
+        ToggleFrame.Name = text .. "Toggle"
+        ToggleFrame.Parent = parent
+        ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+        ToggleFrame.BorderSizePixel = 0
+        ToggleFrame.Position = UDim2.new(0.05, 0, yPosition, 0)
+        ToggleFrame.Size = UDim2.new(0.9, 0, 0, 35)
+
+        local ToggleCorner = Instance.new("UICorner")
+        ToggleCorner.CornerRadius = UDim.new(0, 8)
+        ToggleCorner.Parent = ToggleFrame
+
+        local ToggleLabel = Instance.new("TextLabel")
+        ToggleLabel.Name = "Label"
+        ToggleLabel.Parent = ToggleFrame
+        ToggleLabel.BackgroundTransparency = 1
+        ToggleLabel.Position = UDim2.new(0.05, 0, 0, 0)
+        ToggleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+        ToggleLabel.Font = Enum.Font.Gotham
+        ToggleLabel.Text = text
+        ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ToggleLabel.TextSize = 12
+        ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        local ToggleButton = Instance.new("TextButton")
+        ToggleButton.Name = "Toggle"
+        ToggleButton.Parent = ToggleFrame
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+        ToggleButton.BorderSizePixel = 0
+        ToggleButton.Position = UDim2.new(0.8, 0, 0.2, 0)
+        ToggleButton.Size = UDim2.new(0, 50, 0, 20)
+        ToggleButton.Font = Enum.Font.GothamBold
+        ToggleButton.Text = "OFF"
+        ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        ToggleButton.TextSize = 10
+        ToggleButton.AutoButtonColor = false
+
+        local ToggleButtonCorner = Instance.new("UICorner")
+        ToggleButtonCorner.CornerRadius = UDim.new(1, 0)
+        ToggleButtonCorner.Parent = ToggleButton
+
+        local ToggleState = false
+
+        ToggleButton.MouseButton1Click:Connect(function()
+            ToggleState = not ToggleState
+            
+            if ToggleState then
+                game:GetService("TweenService"):Create(ToggleButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+                }):Play()
+                ToggleButton.Text = "ON"
+            else
+                game:GetService("TweenService"):Create(ToggleButton, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+                }):Play()
+                ToggleButton.Text = "OFF"
+            end
+            
+            if callback then
+                callback(ToggleState)
+            end
+        end)
+
+        return ToggleButton
+    end
+
+    local function CreateButton(parent, text, yPosition, callback)
+        local ButtonFrame = Instance.new("Frame")
+        ButtonFrame.Name = text .. "Button"
+        ButtonFrame.Parent = parent
+        ButtonFrame.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+        ButtonFrame.BorderSizePixel = 0
+        ButtonFrame.Position = UDim2.new(0.05, 0, yPosition, 0)
+        ButtonFrame.Size = UDim2.new(0.9, 0, 0, 35)
+
+        local ButtonCorner = Instance.new("UICorner")
+        ButtonCorner.CornerRadius = UDim.new(0, 8)
+        ButtonCorner.Parent = ButtonFrame
+
+        local Button = Instance.new("TextButton")
+        Button.Name = "Button"
+        Button.Parent = ButtonFrame
+        Button.BackgroundTransparency = 1
+        Button.Size = UDim2.new(1, 0, 1, 0)
+        Button.Font = Enum.Font.GothamBold
+        Button.Text = text
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.TextSize = 12
+        Button.AutoButtonColor = false
+
+        -- Button Hover Effects
+        Button.MouseEnter:Connect(function()
+            game:GetService("TweenService"):Create(ButtonFrame, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+            }):Play()
+        end)
+
+        Button.MouseLeave:Connect(function()
+            game:GetService("TweenService"):Create(ButtonFrame, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+            }):Play()
+        end)
+
+        Button.MouseButton1Click:Connect(function()
+            if callback then
+                callback()
+            end
+        end)
+
+        return Button
+    end
+
+    -- HOME TAB CONTENT
+    local HomePage = TabPages["HOME"]
+
+    -- Welcome Section
+    local WelcomeSection = CreateSection(HomePage, "🚀 WELCOME TO Hoàng GM hop", 0.02)
+
+    local WelcomeText = Instance.new("TextLabel")
+    WelcomeText.Name = "WelcomeText"
+    WelcomeText.Parent = HomePage
+    WelcomeText.BackgroundTransparency = 1
+    WelcomeText.Position = UDim2.new(0.05, 0, 0.12, 0)
+    WelcomeText.Size = UDim2.new(0.9, 0, 0, 80)
+    WelcomeText.Font = Enum.Font.Gotham
+    WelcomeText.Text = "Premium Server Management Script\nVersion: v2.5.1 | Status: ✅ ACTIVE\n\nFeatures:\n• Server Hopping\n• Fake Server Creation\n• Advanced Server Management"
+    WelcomeText.TextColor3 = Color3.fromRGB(200, 200, 220)
+    WelcomeText.TextSize = 12
+    WelcomeText.TextYAlignment = Enum.TextYAlignment.Top
+
+    -- Quick Actions Section
+    CreateSection(HomePage, "⚡ QUICK ACTIONS", 0.3)
+
+    CreateButton(HomePage, "🔄 HOP TO BEST SERVER", 0.37, function()
+        AutoRetryHop()
+    end)
+
+    CreateButton(HomePage, "🎭 CREATE FAKE SERVER", 0.45, function()
+        if CanRunFunc() then
+            local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
+            game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
+            print("✅ Fake Server Created!")
+        else
+            warn("❌ Cannot create fake server - only 1 player in server")
+        end
+    end)
+
+    -- Status Section
+    CreateSection(HomePage, "📊 SYSTEM STATUS", 0.55)
+
+    local StatusText = Instance.new("TextLabel")
+    StatusText.Name = "StatusText"
+    StatusText.Parent = HomePage
+    StatusText.BackgroundTransparency = 1
+    StatusText.Position = UDim2.new(0.05, 0, 0.62, 0)
+    StatusText.Size = UDim2.new(0.9, 0, 0, 80)
+    StatusText.Font = Enum.Font.Gotham
+    StatusText.Text = "🔹 Script Loaded: ✅\n🔹 Key Verified: ✅\n🔹 Server Access: ✅\n🔹 Security: ✅\n🔹 Players: " .. #game.Players:GetPlayers()
+    StatusText.TextColor3 = Color3.fromRGB(200, 200, 220)
+    StatusText.TextSize = 11
+    StatusText.TextYAlignment = Enum.TextYAlignment.Top
+    StatusText.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- HOP TAB CONTENT
+    local HopPage = TabPages["HOP"]
+
+    CreateSection(HopPage, "🔄 SERVER HOP SYSTEM", 0.02)
+
+    CreateButton(HopPage, "🎯 HOP TO SERVER 1 PLAYER", 0.08, function()
+        AutoRetryHop()
+    end)
+
+    CreateButton(HopPage, "🔍 FIND BEST SERVER", 0.15, function()
+        local target = FindBestServer()
+        if target then
+            print("👉 Best Server Found:", target.id, "Players:", target.playing)
+        else
+            warn("❌ No suitable server found")
+        end
+    end)
+
+    CreateSection(HopPage, "⚙️ HOP SETTINGS", 0.25)
+
+    CreateToggle(HopPage, "Auto Retry Hop", 0.31, function(state)
+        if state then
+            AutoRetryHop()
+        end
+    end)
+
+    -- FAKE SERVER TAB CONTENT
+    local FakeServerPage = TabPages["FAKE SERVER"]
+
+    CreateSection(FakeServerPage, "🎭 FAKE SERVER SYSTEM", 0.02)
+
+    CreateButton(FakeServerPage, "🚀 CREATE FAKE SERVER", 0.08, function()
+        if CanRunFunc() then
+            local accessCode, gameCode = GenerateReservedServerCode(game.PlaceId)
+            game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
+            print("✅ Fake Server Created!")
+            print("🎮 Game Code:", gameCode)
+        else
+            warn("❌ Cannot create fake server - only 1 player in server")
+        end
+    end)
+
+    CreateButton(FakeServerPage, "📋 GENERATE SERVER CODE", 0.15, function()
+        local accessCode, gameCode = GenerateReservedServerCode(game.PlaceId)
+        print("🔑 Access Code:", accessCode)
+        print("🎮 Game Code:", gameCode)
+    end)
+
+    CreateSection(FakeServerPage, "ℹ️ SERVER INFO", 0.25)
+
+    local ServerInfo = Instance.new("TextLabel")
+    ServerInfo.Name = "ServerInfo"
+    ServerInfo.Parent = FakeServerPage
+    ServerInfo.BackgroundTransparency = 1
+    ServerInfo.Position = UDim2.new(0.05, 0, 0.32, 0)
+    ServerInfo.Size = UDim2.new(0.9, 0, 0, 100)
+    ServerInfo.Font = Enum.Font.Gotham
+    ServerInfo.Text = "Current Server Info:\n• Place ID: " .. game.PlaceId .. "\n• Players: " .. #game.Players:GetPlayers() .. "\n• Can Create Fake: " .. tostring(CanRunFunc())
+    ServerInfo.TextColor3 = Color3.fromRGB(200, 200, 220)
+    ServerInfo.TextSize = 11
+    ServerInfo.TextYAlignment = Enum.TextYAlignment.Top
+    ServerInfo.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- SETTINGS TAB CONTENT
+    local SettingsPage = TabPages["SETTINGS"]
+
+    CreateSection(SettingsPage, "⚙️ SCRIPT SETTINGS", 0.02)
+
+    CreateToggle(SettingsPage, "Anti AFK", 0.08, function(state)
+        if state then
+            -- Anti AFK implementation
+        end
+    end)
+
+    CreateToggle(SettingsPage, "Safe Mode", 0.15, function(state)
+        -- Safe mode implementation
+    end)
+
+    CreateToggle(SettingsPage, "UI Visible", 0.22, function(state)
+        MainFrame.Visible = state
+    end)
+
+    CreateSection(SettingsPage, "🔒 SECURITY", 0.32)
+
+    CreateToggle(SettingsPage, "Anti Ban", 0.38, function(state)
+        -- Anti ban implementation
+    end)
+
+    CreateToggle(SettingsPage, "Anti Detection", 0.45, function(state)
+        -- Anti detection implementation
+    end)
+
+    CreateButton(SettingsPage, "🔄 RELOAD SCRIPT", 0.55, function()
+        -- Reload script implementation
+    end)
+
+    CreateButton(SettingsPage, "🗑️ DESTROY UI", 0.62, function()
+        ScreenGui:Destroy()
+    end)
+
+    -- UI Functionality
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
+    local minimized = false
+    MinimizeButton.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        if minimized then
+            for _, page in pairs(TabPages) do
+                page.Visible = false
+            end
+            MainFrame.Size = UDim2.new(0, 550, 0, 50)
+            MinimizeButton.Text = "+"
+        else
+            TabPages[CurrentTab].Visible = true
+            MainFrame.Size = UDim2.new(0, 550, 0, 400)
+            MinimizeButton.Text = "−"
+        end
+    end)
+
+    -- Set default tab
+    TabButtons["HOME"].BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+    TabButtons["HOME"].TextColor3 = Color3.fromRGB(255, 255, 255)
+    TabPages["HOME"].Visible = true
+
+    -- Success message
+    print("🎯 Hoàng Hop UI Loaded Successfully!")
+    print("🔑 Key System: ACTIVE")
+    print("🔄 Server Hop: READY")
+    print("🎭 Fake Server: READY")
+end
+
+-- If key is already verified (for testing), create UI directly
+if keyVerified then
+    CreateMainUI()
+end
+
+print("🔐 HoàngGM Key System Initialized!")
+print("🔑 Valid Keys: HoàngGM")

@@ -1,10 +1,10 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "DYHUB | The Strongest Battleground (dsc.gg/dyhub)",
+   Name = "Hoàng bell | The Strongest Battleground ()",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "DYHUB | dsc.gg/dyhub",
-   LoadingSubtitle = "Powered by DYHUB TEAM",
+   LoadingTitle = "cộng đồng share script VN 🇻🇳| https://discord.gg/2MztFGsBa",
+   LoadingSubtitle = "hoàng bell",
    ShowText = "gurt yo", -- for mobile users to unhide rayfield, change if you'd like
    Theme = "Dark Blue", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
@@ -15,13 +15,13 @@ local Window = Rayfield:CreateWindow({
 
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = ud, -- Create a custom folder for your hub/game
-      FileName = "DYHUBTSB"
+      FolderName = hoàng Bell, -- Create a custom folder for your hub/game
+      FileName = "Hoàng bell"
    },
 
    Discord = {
       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+      Invite = "https://discord.gg/2MztFGsBa",
       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
    },
 })

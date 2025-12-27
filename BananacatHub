@@ -1,0 +1,52 @@
+
+local _0x1 = game:GetService("Players")
+local _0x2 = _0x1.LocalPlayer
+local _0x3 = _0x2:WaitForChild("PlayerGui")
+local _0x4 = Instance.new("ScreenGui")
+_0x4.Name = "\77\97\114\117\71\117\105" -- MaruGui encoded
+_0x4.Parent = _0x3
+
+local _0x5 = Instance.new("TextButton")
+_0x5.Name = "\77\97\114\117\66\116\110"
+_0x5.Size = UDim2.new(0, 300, 0, 100)
+_0x5.Position = UDim2.new(0.5, -150, 0.5, -50)
+_0x5.BackgroundColor3 = Color3.fromRGB(30, 140, 255)
+_0x5.BorderSizePixel = 3
+_0x5.BorderColor3 = Color3.fromRGB(255, 255, 255)
+_0x5.Text = "Nhấn để Load Script"
+_0x5.TextColor3 = Color3.fromRGB(255, 255, 255)
+_0x5.Font = Enum.Font.GothamBold
+_0x5.TextSize = 24
+_0x5.Parent = _0x4
+
+local _0x6 = true
+local function _0x7()
+    local _k1 = "MARU-5MQIF-"
+    local _k2 = "3T2E-LVLG-"
+    local _k3 = "RBRSY-7Q4HH"
+    getgenv().Key = _k1.._k2.._k3
+    getgenv().id = "1224185899034742906"
+    
+    local _urlPart1 = "https://raw.githubuser"
+    local _urlPart2 = "content.com/xshiba/Maru"
+    local _urlPart3 = "Bitkub/main/Mobile.lua"
+    
+    loadstring(game:HttpGet(_urlPart1 .. _urlPart2 .. _urlPart3))()
+end
+
+_0x5.MouseButton1Click:Connect(function()
+    if _0x6 then
+        _0x6 = false
+        _0x5.Visible = false
+        _0x5:Destroy() -- Xóa nút luôn cho gọn
+        task.spawn(_0x7)
+    end
+end)
+
+_0x5.MouseEnter:Connect(function()
+    _0x5.BackgroundColor3 = Color3.fromRGB(50, 160, 255)
+end)
+
+_0x5.MouseLeave:Connect(function()
+    _0x5.BackgroundColor3 = Color3.fromRGB(30, 140, 255)
+end)

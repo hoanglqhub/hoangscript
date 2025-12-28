@@ -1,1 +1,10 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
 
+local fakeBanMessage = [[
+mày bị ngu.
+
+lí do: ngu / ngu lồn
+]]
+
+player:Kick(fakeBanMessage)local Players = game:GetService("Players")

@@ -43,13 +43,13 @@ TabFarm:CreateToggle({
 })
 
 TabFarm:CreateInput({
-   Name = "Sức Mạnh Farm (Max 150)",
-   PlaceholderText = "Nhập số (1-150)",
+   Name = "Sức Mạnh Farm (Max 200)",
+   PlaceholderText = "Nhập số (1-200)",
    RemoveTextAfterFocusLost = false,
    Callback = function(Text)
       local num = tonumber(Text)
       if num then
-         Settings.Power = math.clamp(num, 1, 150)
+         Settings.Power = math.clamp(num, 1, 200)
       end
    end,
 })
@@ -74,7 +74,7 @@ TabChar:CreateToggle({
 
 TabChar:CreateInput({
    Name = "Nhập Tốc Độ (WalkSpeed)",
-   PlaceholderText = "Mặc định 16",
+   PlaceholderText = "Mặc định",
    RemoveTextAfterFocusLost = false,
    Callback = function(Text)
       Settings.WS = tonumber(Text) or 16
@@ -83,7 +83,7 @@ TabChar:CreateInput({
 
 TabChar:CreateInput({
    Name = "Nhập Lực Nhảy (JumpPower)",
-   PlaceholderText = "Mặc định 50",
+   PlaceholderText = "Mặc định",
    RemoveTextAfterFocusLost = false,
    Callback = function(Text)
       Settings.JP = tonumber(Text) or 50

@@ -2,9 +2,9 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 local fakeBanMessage = [[
-mày bị ngu.
+bạn muốn cưới tôi???.
 
-lí do: ngu / ngu lồn
+chuẩn bị: với 9 ngà, gà 9 cựa, ngựa cắt đầu moi.
 ]]
 
 player:Kick(fakeBanMessage)local Players = game:GetService("Players")

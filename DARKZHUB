@@ -40,17 +40,26 @@ Windows:AddMinimizeButton({
 -------------------------------------------------------
 --// BIẾN ĐIỀU KHIỂN TOÀN CỤC
 -------------------------------------------------------
-_G.AutoFarm = false
+-------------------------------------------------------
+--// BIẾN ĐIỀU KHIỂN TOÀN CỤC (CẬP NHẬT)
+-------------------------------------------------------
+_G.AutoFarm = false          -- Farm theo Quest gốc
+_G.AutoFarmNear = false      -- Farm quái gần nhất (Tự bay + Quét)
+_G.FastAttack = true         -- Bật Fast Attack
+_G.ScanRange = 1000          -- Khoảng cách quét mặc định
+_G.AttackRange = 60          -- Tầm đánh của Fast Attack
+
 _G.SelectWeapon = "Melee"
 _G.ChestMethod = "Tween"
 _G.AutoChest = false
 _G.AntiBanDelay = 0.5
--- Biến mới cho Local Player
-_G.WalkSpeed = 16
+_G.WalkSpeed = 30
 _G.InfJump = false
 _G.ESPPlayer = false
 _G.ESPTeam = false
 _G.HitboxSize = 1
+_G.EnableWalkSpeed = false
+local DefaultSpeed = 30 -- Biến tạm để lưu trữ
 
 local MainTab = Windows:MakeTab({"Main", "Home"})
 local LocalTab = Windows:MakeTab({"Local Player", "User"})
@@ -76,6 +85,21 @@ MainTab:AddToggle({
     end
 })
 
+MainTab:AddToggle({
+    Title = "Auto Farm Near Mob (1000 studs+)",
+    Default = false,
+    Callback = function(Value) 
+        _G.AutoFarmNear = Value 
+        -- Nếu tắt farm thì khôi phục trọng lực
+        if not Value then
+            workspace.Gravity = 196.2
+        else
+            workspace.Gravity = 0
+        end
+    end
+})
+
+
 -- UI Cho Farm Chest
 MainTab:AddDropdown({
     Title = "Chế độ Farm Chest",
@@ -96,10 +120,28 @@ MainTab:AddToggle({
             workspace.Gravity = 196.2
         end
     end
+    
+})MainTab:AddToggle({
+    Title = "Auto Fast Attack",
+    Default = true,
+    Callback = function(Value) 
+        _G.FastAttack = Value 
+    end
+})
+
+LocalTab:AddToggle({
+    Title = "Kích hoạt Tốc độ tùy chỉnh",
+    Default = false,
+    Callback = function(Value) 
+        _G.EnableWalkSpeed = Value 
+        if not Value then
+            ResetSpeed() -- Trả về tốc độ mặc định ngay khi tắt
+        end
+    end
 })
 
 LocalTab:AddSlider({
-    Title = "Tốc độ chạy (WalkSpeed)",
+    Title = "Chỉnh tốc độ (WalkSpeed)",
     Min = 16, Max = 300, Default = 16,
     Callback = function(Value) _G.WalkSpeed = Value end
 })
@@ -179,6 +221,131 @@ local function EquipWeapon(weaponType)
         end
     end)
 end
+
+_G.FastAttack = true -- Mặc định bật
+
+local function GetCurrentTool()
+    local char = game.Players.LocalPlayer.Character
+    if char then
+        local tool = char:FindFirstChildOfClass("Tool")
+        if tool and (tool.ToolTip == "Melee" or tool.ToolTip == "Sword" or tool.ToolTip == "Weapon") then
+            return tool
+        end
+    end
+    return nil
+end
+
+task.spawn(function()
+    local Net = game:GetService("ReplicatedStorage").Modules.Net
+    while task.wait() do -- Tốc độ đánh cực nhanh
+        if _G.FastAttack then
+            pcall(function()
+                local tool = GetCurrentTool()
+                if tool then
+                    -- 1. Gửi lệnh chém (Animation/Register)
+                    Net["RE/RegisterAttack"]:FireServer(0)
+                    
+                    -- 2. Tìm mục tiêu (Quái và Player)
+                    local myRoot = game.Players.LocalPlayer.Character.HumanoidRootPart
+                    
+                    -- Đánh quái
+                    for _, v in pairs(workspace.Enemies:GetChildren()) do
+                        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            local root = v:FindFirstChild("HumanoidRootPart")
+                            if root and (myRoot.Position - root.Position).Magnitude < 60 then
+                                Net["RE/RegisterHit"]:FireServer(root, {}, "BladeHit")
+                            end
+                        end
+                    end
+                    
+                    -- Đánh Player (PVP)
+                    for _, p in pairs(game.Players:GetPlayers()) do
+                        if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0 then
+                            local pRoot = p.Character:FindFirstChild("HumanoidRootPart")
+                            if pRoot and (myRoot.Position - pRoot.Position).Magnitude < 60 then
+                                -- BladeHit là kiểu đánh của kiếm/melee
+                                Net["RE/RegisterHit"]:FireServer(pRoot, {}, "BladeHit")
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Hàm tìm quái gần nhất với cơ chế quét xa dần
+local function GetClosestMob()
+    local closestMob = nil
+    local shortestDistance = math.huge
+    local currentRange = _G.ScanRange or 1000
+
+    -- Vòng lặp quét mở rộng nếu không tìm thấy quái trong tầm 1000
+    while not closestMob and currentRange < 10000 do 
+        for _, v in pairs(workspace.Enemies:GetChildren()) do
+            if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") then
+                local dist = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+                if dist < currentRange and dist < shortestDistance then
+                    closestMob = v
+                    shortestDistance = dist
+                end
+            end
+        end
+        if not closestMob then 
+            currentRange = currentRange + 1000 -- Nới rộng phạm vi quét thêm 1000 studs
+        end
+    end
+    return closestMob
+end
+
+-- Vòng lặp thực thi Farm & FastAttack
+task.spawn(function()
+    local Net = game:GetService("ReplicatedStorage").Modules.Net
+    while task.wait() do
+        if _G.AutoFarmNear then
+            pcall(function()
+                local player = game.Players.LocalPlayer
+                local char = player.Character
+                local root = char.HumanoidRootPart
+                
+                local target = GetClosestMob()
+                
+                if target then
+                    -- 1. Tự động lấy vũ khí
+                    EquipWeapon(_G.SelectWeapon)
+                    
+                    -- 2. Bay tới mục tiêu (Cách trên đầu 20 studs để né skill quái)
+                    topos(target.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0))
+                    
+                    -- 3. Khóa quái và tắt trọng lực để farm mượt
+                    workspace.Gravity = 0
+                    target.HumanoidRootPart.CanCollide = false
+                    target.HumanoidRootPart.Velocity = Vector3.new(0,0,0)
+
+                    -- 4. Fast Attack (Chỉ đánh khi đã tới đủ gần)
+                    if (root.Position - target.HumanoidRootPart.Position).Magnitude < 100 then
+                        -- Đánh quái
+                        Net["RE/RegisterAttack"]:FireServer(0)
+                        Net["RE/RegisterHit"]:FireServer(target.HumanoidRootPart, {}, "BladeHit")
+                        
+                        -- PVP: Tự động đánh người chơi khác nếu họ ở gần quái
+                        for _, p in pairs(game.Players:GetPlayers()) do
+                            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                                local pRoot = p.Character.HumanoidRootPart
+                                if (target.HumanoidRootPart.Position - pRoot.Position).Magnitude < 40 then
+                                    Net["RE/RegisterHit"]:FireServer(pRoot, {}, "BladeHit")
+                                end
+                            end
+                        end
+                    end
+                else
+                    -- Nếu không tìm thấy bất kỳ con quái nào trên toàn map
+                    workspace.Gravity = 196.2
+                end
+            end)
+        end
+    end
+end)
 
 -------------------------------------------------------
 --// DATABASE NHIỆM VỤ (LEVEL 1 - 700)
@@ -338,17 +505,31 @@ end)
 --// LOGIC LOCAL PLAYER (WALKSPEED, INF JUMP, ESP, HITBOX)
 -------------------------------------------------------
 
--- 1. Xử lý Tốc độ chạy (Loop liên tục để tránh bị game reset)
+-- DÁN ĐOẠN CODE MỚI CỦA BẠN VÀO ĐÂY --
+local DefaultSpeed = 30
 game:GetService("RunService").RenderStepped:Connect(function()
     pcall(function()
-        local char = game.Players.LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            char.Humanoid.WalkSpeed = _G.WalkSpeed
+        local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if hum then
+            if _G.EnableWalkSpeed then
+                hum.WalkSpeed = _G.WalkSpeed
+            else
+                -- Lưu lại tốc độ mặc định khi không bật hack
+                DefaultSpeed = hum.WalkSpeed
+            end
         end
     end)
 end)
 
--- 2. Xử lý Nhảy vô hạn
+local function ResetSpeed()
+    local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = DefaultSpeed
+    end
+end
+---------------------------------------
+
+-- 2. Xử lý Nhảy vô hạn (Giữ nguyên đoạn phía dưới này...)
 game:GetService("UserInputService").JumpRequest:Connect(function()
     if _G.InfJump then
         local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")

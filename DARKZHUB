@@ -1,0 +1,517 @@
+-- Chờ Game Load hoàn toàn để tránh lỗi không tìm thấy Character
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+-------------------------------------------------------
+--// TÍNH NĂNG TỐI ƯU HÓA ĐỒ HỌA (FPS BOOST)
+-------------------------------------------------------
+local function OptimizeGraphics()
+    local g = game
+    local l = g.Lighting
+    l.GlobalShadows = false
+    l.FogEnd = 9e9
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    for _, v in pairs(g:GetDescendants()) do
+        if v:IsA("BasePart") or v:IsA("MeshPart") then
+            v.Material = Enum.Material.Plastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") or v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v:Destroy()
+        end
+    end
+end
+OptimizeGraphics()
+
+-------------------------------------------------------
+--// KHỞI TẠO THƯ VIỆN UI
+-------------------------------------------------------
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/daucobonhi/UiRedzV5/refs/heads/main/DemoUi.lua"))();
+
+local Windows = redzlib:MakeWindow({
+    Title = "DarkZ - beta_version",
+    SubTitle = "beta_version",
+    SaveFolder = "DarkZ_beta"
+})
+
+Windows:AddMinimizeButton({
+    Button = { Image = "rbxassetid://78722165038037", BackgroundTransparency = 0.5 },
+    Corner = { CornerRadius = UDim.new(0, 10) }
+})
+
+-------------------------------------------------------
+--// BIẾN ĐIỀU KHIỂN TOÀN CỤC
+-------------------------------------------------------
+_G.AutoFarm = false
+_G.SelectWeapon = "Melee"
+_G.ChestMethod = "Tween"
+_G.AutoChest = false
+_G.AntiBanDelay = 0.5
+-- Biến mới cho Local Player
+_G.WalkSpeed = 16
+_G.InfJump = false
+_G.ESPPlayer = false
+_G.ESPTeam = false
+_G.HitboxSize = 1
+
+local MainTab = Windows:MakeTab({"Main", "Home"})
+local LocalTab = Windows:MakeTab({"Local Player", "User"})
+
+-------------------------------------------------------
+--// CÁC THÀNH PHẦN GIAO DIỆN (UI)
+-------------------------------------------------------
+
+MainTab:AddDropdown({
+    Title = "Chọn vũ khí",
+    Options = {"Melee", "Sword", "Fruit"},
+    Default = "Melee",
+    Callback = function(Value) 
+        _G.SelectWeapon = Value 
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Auto Farm Level (1-700)",
+    Default = false,
+    Callback = function(Value) 
+        _G.AutoFarm = Value 
+    end
+})
+
+-- UI Cho Farm Chest
+MainTab:AddDropdown({
+    Title = "Chế độ Farm Chest",
+    Options = {"Tween", "Bypass"},
+    Default = "Tween",
+    Callback = function(Value) 
+        _G.ChestMethod = Value 
+    end
+})
+
+MainTab:AddToggle({
+    Title = "Auto Farm Chest (Workspace.map)",
+    Default = false,
+    Callback = function(Value) 
+        _G.AutoChest = Value 
+        -- Nếu tắt farm thì khôi phục lại trọng lực
+        if not Value and not _G.AutoFarm then
+            workspace.Gravity = 196.2
+        end
+    end
+})
+
+LocalTab:AddSlider({
+    Title = "Tốc độ chạy (WalkSpeed)",
+    Min = 16, Max = 300, Default = 16,
+    Callback = function(Value) _G.WalkSpeed = Value end
+})
+
+LocalTab:AddToggle({
+    Title = "Nhảy vô hạn (Infinite Jump)",
+    Default = false,
+    Callback = function(Value) _G.InfJump = Value end
+})
+
+LocalTab:AddToggle({
+    Title = "Bật ESP Players",
+    Default = false,
+    Callback = function(Value) _G.ESPPlayer = Value end
+})
+
+LocalTab:AddToggle({
+    Title = "Hiện đồng đội (ESP Team)",
+    Default = false,
+    Callback = function(Value) _G.ESPTeam = Value end
+})
+
+LocalTab:AddSlider({
+    Title = "Tăng Hitbox Người chơi",
+    Min = 1, Max = 100, Default = 1,
+    Callback = function(Value) _G.HitboxSize = Value end
+})
+-------------------------------------------------------
+--// HÀM HỖ TRỢ (TWEEN, EQUIP, PHÂN LOẠI)
+-------------------------------------------------------
+
+-- Hàm di chuyển dành cho Farm Level
+local function topos(CFrameTarget)
+    pcall(function()
+        local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+        local dist = (CFrameTarget.Position - root.Position).Magnitude
+        local speed = dist < 500 and 1000 or 350
+        game:GetService("TweenService"):Create(root, TweenInfo.new(dist/speed, Enum.EasingStyle.Linear), {CFrame = CFrameTarget}):Play()
+    end)
+end
+
+-- Hàm di chuyển an toàn cho Farm Chest (Chế độ Bypass Cải tiến)
+local function SafeMoveToChest(targetPart)
+    local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not root or not targetPart then return end
+
+    if _G.ChestMethod == "Bypass" then
+        -- KỸ THUẬT TRÁNH BAN: Thêm độ lệch ngẫu nhiên nhỏ để không bị check tọa độ tĩnh
+        local safeCFrame = targetPart.CFrame * CFrame.new(math.random(-1,1), 2, math.random(-1,1))
+        
+        -- Dịch chuyển trực tiếp
+        root.CFrame = safeCFrame
+        
+        -- Nghỉ một chút để server không kick vì nhận dữ liệu quá nhanh
+        task.wait(_G.AntiBanDelay)
+    else
+        -- Chế độ Tween (Di chuyển mượt mà - Cực kỳ an toàn)
+        local dist = (targetPart.Position - root.Position).Magnitude
+        local speed = dist < 500 and 600 or 350
+        local tween = game:GetService("TweenService"):Create(root, TweenInfo.new(dist/speed, Enum.EasingStyle.Linear), {CFrame = targetPart.CFrame})
+        tween:Play()
+        
+        -- Chờ cho đến khi tới nơi hoặc bị tắt farm
+        repeat task.wait() until (targetPart.Position - root.Position).Magnitude < 10 or not _G.AutoChest
+    end
+end
+
+local function EquipWeapon(weaponType)
+    pcall(function()
+        local p = game.Players.LocalPlayer
+        local toolName = (weaponType == "Fruit") and "Blox Fruit" or weaponType
+        if p.Character:FindFirstChildOfClass("Tool") and p.Character:FindFirstChildOfClass("Tool").ToolTip == toolName then return end
+        for _, tool in pairs(p.Backpack:GetChildren()) do
+            if tool.ToolTip == toolName or tool.ToolTip == weaponType then
+                p.Character.Humanoid:EquipTool(tool)
+            end
+        end
+    end)
+end
+
+-------------------------------------------------------
+--// DATABASE NHIỆM VỤ (LEVEL 1 - 700)
+-------------------------------------------------------
+function GetQuestData()
+    local lvl = game.Players.LocalPlayer.Data.Level.Value
+    if lvl < 10 then return "Bandit", "BanditQuest1", CFrame.new(1059, 15, 1550), 1, CFrame.new(1045, 27, 1560)
+    elseif lvl < 15 then return "Monkey", "JungleQuest", CFrame.new(-1598, 35, 153), 1, CFrame.new(-1600, 40, 150)
+    elseif lvl < 30 then return "Gorilla", "JungleQuest", CFrame.new(-1598, 35, 153), 2, CFrame.new(-1200, 50, -500)
+    elseif lvl < 40 then return "Pirate", "BuggyQuest1", CFrame.new(-1141, 4, 3831), 1, CFrame.new(-1100, 20, 3800)
+    elseif lvl < 60 then return "Brute", "BuggyQuest1", CFrame.new(-1141, 4, 3831), 2, CFrame.new(-1150, 25, 4400)
+    elseif lvl < 90 then return "Snow Bandit", "SnowQuest", CFrame.new(1389, 88, -1298), 1, CFrame.new(1300, 100, -1300)
+    elseif lvl < 120 then return "Snowman", "SnowQuest", CFrame.new(1389, 88, -1298), 2, CFrame.new(1200, 105, -1450)
+    elseif lvl < 150 then return "Chief Marine", "MarineQuest2", CFrame.new(-4835, 20, 4296), 1, CFrame.new(-4800, 50, 4400)
+    elseif lvl < 175 then return "Sky Bandit", "SkyQuest", CFrame.new(-4842, 717, -2622), 1, CFrame.new(-4900, 730, -2600)
+    elseif lvl < 225 then return "Dark Steward", "SkyQuest", CFrame.new(-4842, 717, -2622), 2, CFrame.new(-4700, 850, -2400)
+    elseif lvl < 250 then return "Prisoner", "PrisonQuest", CFrame.new(5308, 1, 474), 1, CFrame.new(5400, 15, 500)
+    elseif lvl < 300 then return "Dangerous Prisoner", "PrisonQuest", CFrame.new(5308, 1, 474), 2, CFrame.new(5500, 15, 700)
+    elseif lvl < 650 then return "Galley Pirate", "FountainQuest", CFrame.new(5259, 37, 4050), 1, CFrame.new(5551, 78, 3930)
+    else return "Galley Captain", "FountainQuest", CFrame.new(5259, 37, 4050), 2, CFrame.new(5441, 42, 4950)
+    end
+end
+
+-------------------------------------------------------
+--// LOGIC AUTO FARM CHEST (VÒNG LẶP CHÍNH)
+-------------------------------------------------------
+task.spawn(function()
+    while task.wait() do
+        if _G.AutoChest then
+            pcall(function()
+                local list = {}
+                -- Tìm rương trong folder map của Workspace
+                local mapFolder = workspace:FindFirstChild("map")
+                local source = mapFolder or workspace
+                
+                for _, v in pairs(source:GetDescendants()) do
+                    if v:IsA("BasePart") and v.Name:find("Chest") and v:FindFirstChild("TouchInterest") then
+                        table.insert(list, v)
+                    end
+                end
+
+                -- Sắp xếp rương gần nhất dựa trên vị trí người chơi
+                table.sort(list, function(a, b)
+                    local rootPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+                    return (a.Position - rootPos).Magnitude < (b.Position - rootPos).Magnitude
+                end)
+
+                if #list > 0 then
+                    -- Ép trọng lực về 0 để di chuyển không bị kẹt sàn
+                    workspace.Gravity = 0 
+                    
+                    local target = list[1]
+                    SafeMoveToChest(target)
+                    
+                    -- Nhặt rương bằng FireTouch
+                    local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+                    if (target.Position - root.Position).Magnitude < 20 then
+                        firetouchinterest(root, target, 0)
+                        task.wait(0.05)
+                        firetouchinterest(root, target, 1)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-------------------------------------------------------
+--// LOGIC AUTO FARM LEVEL
+-------------------------------------------------------
+task.spawn(function()
+    local Net = game:GetService("ReplicatedStorage").Modules.Net
+    while task.wait(0.05) do
+        if _G.AutoFarm then
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                local tool = char:FindFirstChildOfClass("Tool")
+                local MonName = GetQuestData()
+                if tool and (tool.ToolTip == "Melee" or tool.ToolTip == "Sword") then
+                    Net["RE/RegisterAttack"]:FireServer(0)
+                    for _, mob in pairs(workspace.Enemies:GetChildren()) do
+                        if mob.Name == MonName and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                            if (char.HumanoidRootPart.Position - mob.HumanoidRootPart.Position).Magnitude < 75 then
+                                Net["RE/RegisterHit"]:FireServer(mob.HumanoidRootPart, {}, "BladeHit")
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if _G.AutoFarm then
+            pcall(function()
+                local Mon, QName, QPos, QID, MPos = GetQuestData()
+                local player = game.Players.LocalPlayer
+                
+                -- Tắt trọng lực khi farm quái để giữ nhân vật trên cao
+                workspace.Gravity = 0
+
+                if not player.PlayerGui.Main.Quest.Visible then
+                    topos(QPos)
+                    if (player.Character.HumanoidRootPart.Position - QPos.Position).Magnitude < 15 then
+                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", QName, QID)
+                    end
+                else
+                    EquipWeapon(_G.SelectWeapon)
+                    local target = nil
+                    for _, v in pairs(workspace.Enemies:GetChildren()) do
+                        if v.Name == Mon and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            target = v break
+                        end
+                    end
+                    
+                    if target then
+                        -- Bay trên đầu quái vật 25 đơn vị
+                        topos(target.HumanoidRootPart.CFrame * CFrame.new(0, 25, 0))
+                        target.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                        target.HumanoidRootPart.CanCollide = false
+                    else
+                        topos(MPos)
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-------------------------------------------------------
+--// HỆ THỐNG NOCLIP & KHÓA VẬN TỐC (CHỐNG RUNG / ANTI-CHEAT)
+-------------------------------------------------------
+game:GetService("RunService").Stepped:Connect(function()
+    if _G.AutoFarm or _G.AutoChest then
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            if char then
+                -- Xuyên tường (Noclip)
+                for _, v in pairs(char:GetChildren()) do
+                    if v:IsA("BasePart") then 
+                        v.CanCollide = false 
+                    end
+                end
+                
+                -- Khóa Vận tốc về 0 để tránh bị văng khi di chuyển hoặc bị Anti-cheat soi
+                if char:FindFirstChild("HumanoidRootPart") then
+                    char.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+                    char.HumanoidRootPart.RotVelocity = Vector3.new(0, 0, 0)
+                end
+            end
+        end)
+    end
+end)
+-------------------------------------------------------
+--// LOGIC LOCAL PLAYER (WALKSPEED, INF JUMP, ESP, HITBOX)
+-------------------------------------------------------
+
+-- 1. Xử lý Tốc độ chạy (Loop liên tục để tránh bị game reset)
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.WalkSpeed = _G.WalkSpeed
+        end
+    end)
+end)
+
+-- 2. Xử lý Nhảy vô hạn
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfJump then
+        local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState("Jumping") end
+    end
+end)
+
+-- 3. Xử lý Tăng Hitbox người chơi khác
+task.spawn(function()
+    while task.wait(1) do
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                pcall(function()
+                    local root = p.Character.HumanoidRootPart
+                    root.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                    root.Transparency = 0.8 -- Làm mờ để không bị che tầm nhìn
+                    root.BrickColor = BrickColor.new("Really blue")
+                    root.Material = "Neon"
+                    root.CanCollide = false
+                end)
+            end
+        end
+    end
+end)
+
+-- 4. Hàm tạo ESP Highlight
+local function ApplyESP(plr)
+    if plr == game.Players.LocalPlayer then return end
+    
+    local function CreateHighlight(char)
+        if not char then return end
+        local hl = char:FindFirstChild("DarkZ_ESP") or Instance.new("Highlight")
+        hl.Name = "DarkZ_ESP"
+        hl.Parent = char
+        hl.FillTransparency = 0.5
+        hl.OutlineTransparency = 0
+        
+        task.spawn(function()
+            while char and char.Parent do
+                if not _G.ESPPlayer then
+                    hl.Enabled = false
+                else
+                    local isTeam = (plr.Team == game.Players.LocalPlayer.Team)
+                    if isTeam and not _G.ESPTeam then
+                        hl.Enabled = false
+                    else
+                        hl.Enabled = true
+                        hl.FillColor = isTeam and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+    
+    plr.CharacterAdded:Connect(CreateHighlight)
+    if plr.Character then CreateHighlight(plr.Character) end
+end
+
+-- Kích hoạt ESP cho mọi người
+for _, p in pairs(game.Players:GetPlayers()) do ApplyESP(p) end
+game.Players.PlayerAdded:Connect(ApplyESP)
+-------------------------------------------------------
+--// LOGIC ESP PLAYER NÂNG CAO (NAME, TEAM, DISTANCE)
+-------------------------------------------------------
+
+local function CreateESP(plr)
+    if plr == game.Players.LocalPlayer then return end
+
+    local function setupESP(char)
+        if not char then return end
+        local head = char:WaitForChild("Head", 10)
+        if not head then return end
+
+        -- Xóa ESP cũ nếu có
+        if head:FindFirstChild("DarkZ_Billboard") then
+            head.DarkZ_Billboard:Destroy()
+        end
+
+        -- Tạo BillboardGui (Giao diện trên đầu)
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "DarkZ_Billboard"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(0, 200, 0, 50)
+        billboard.StudsOffset = Vector3.new(0, 3, 0) -- Hiển thị cao hơn đầu 3 studs
+        billboard.AlwaysOnTop = true -- Nhìn xuyên tường
+        billboard.Parent = head
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Parent = billboard
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+        nameLabel.TextSize = 14
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextStrokeTransparency = 0 -- Tạo viền chữ cho dễ đọc
+        nameLabel.TextColor3 = Color3.new(1, 1, 1)
+
+        -- Vòng lặp cập nhật thông tin (Khoảng cách & Trạng thái)
+        task.spawn(function()
+            while char and char.Parent and billboard do
+                if _G.ESPPlayer then
+                    local localRoot = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    local targetRoot = char:FindFirstChild("HumanoidRootPart")
+
+                    if localRoot and targetRoot then
+                        -- Tính khoảng cách
+                        local dist = math.floor((localRoot.Position - targetRoot.Position).Magnitude)
+                        
+                        -- Kiểm tra Team
+                        local isTeam = (plr.Team == game.Players.LocalPlayer.Team)
+                        if isTeam and not _G.ESPTeam then
+                            billboard.Enabled = false
+                        else
+                            billboard.Enabled = true
+                            -- Đổi màu: Team (Xanh lá), Địch (Đỏ)
+                            local color = isTeam and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 50, 50)
+                            
+                            nameLabel.TextColor3 = color
+                            nameLabel.Text = string.format("%s\n[%s]\n%d m", plr.Name, plr.Team and plr.Team.Name or "No Team", dist)
+                        end
+                    end
+                else
+                    billboard.Enabled = false
+                end
+                task.wait(0.1) -- Cập nhật mỗi 0.1 giây để mượt mà
+            end
+        end)
+    end
+
+    plr.CharacterAdded:Connect(setupESP)
+    if plr.Character then setupESP(plr.Character) end
+end
+
+-- Khởi chạy ESP cho mọi người trong server
+for _, p in pairs(game.Players:GetPlayers()) do
+    CreateESP(p)
+end
+game.Players.PlayerAdded:Connect(CreateESP)
+
+-------------------------------------------------------
+--// ĐOẠN CODE WALK SPEED & HITBOX (GIỮ NGUYÊN)
+-------------------------------------------------------
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        local hum = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+        if hum then hum.WalkSpeed = _G.WalkSpeed end
+    end)
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        if _G.HitboxSize > 1 then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    pcall(function()
+                        local hrp = p.Character.HumanoidRootPart
+                        hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                        hrp.Transparency = 0.8
+                        hrp.CanCollide = false
+                    end)
+                end
+            end
+        end
+    end
+end)

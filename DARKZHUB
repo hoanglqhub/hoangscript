@@ -70,7 +70,7 @@ local LocalTab = Windows:MakeTab({"Local Player", "User"})
 
 MainTab:AddDropdown({
     Title = "Chọn vũ khí",
-    Options = {"Melee", "Sword", "Fruit"},
+    Options = {"Melee", "Sword"},
     Default = "Melee",
     Callback = function(Value) 
         _G.SelectWeapon = Value 
@@ -78,7 +78,7 @@ MainTab:AddDropdown({
 })
 
 MainTab:AddToggle({
-    Title = "Auto Farm Level (1-700)",
+    Title = "Auto Farm Level (1- Max)",
     Default = false,
     Callback = function(Value) 
         _G.AutoFarm = Value 
@@ -232,55 +232,45 @@ end
 _G.FastAttack = true -- Mặc định bật
 
 -------------------------------------------------------
---// HỆ THỐNG FAST ATTACK (FORCE MULTI-HIT)
+--// HỆ THỐNG AOE FAST ATTACK (V3 - REAL MULTI-TARGET)
 -------------------------------------------------------
-_G.AttackRange = 70 
+_G.FastAttack = true
+_G.AttackRange = 65
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
+local RegisterAttack = Net["RE/RegisterAttack"]
+local RegisterHit = Net["RE/RegisterHit"]
 
 task.spawn(function()
-    local Net = game:GetService("ReplicatedStorage").Modules.Net
-    local player = game.Players.LocalPlayer
-    
-    -- Cache các hàm để tăng tốc độ xử lý (Tối ưu CPU)
-    local RegisterAttack = Net["RE/RegisterAttack"]
-    local RegisterHit = Net["RE/RegisterHit"]
-
-    while task.wait() do -- Chạy theo tốc độ Render
-        if _G.FastAttack and player.Character then
+    while task.wait() do
+        if _G.FastAttack then
             pcall(function()
-                local char = player.Character
-                local tool = char:FindFirstChildOfClass("Tool")
-                local myRoot = char:FindFirstChild("HumanoidRootPart")
-                
-                -- Chỉ đánh khi cầm vũ khí
-                if tool and myRoot and (tool.ToolTip == "Melee" or tool.ToolTip == "Sword" or tool.ToolTip == "Weapon") then
-                    
-                    -- 1. Tìm tất cả quái trong tầm đánh
-                    local targets = {}
-                    for _, v in ipairs(workspace.Enemies:GetChildren()) do
-                        local eRoot = v:FindFirstChild("HumanoidRootPart")
-                        local eHum = v:FindFirstChild("Humanoid")
-                        if eRoot and eHum and eHum.Health > 0 then
-                            -- Kiểm tra khoảng cách
-                            if (myRoot.Position - eRoot.Position).Magnitude <= _G.AttackRange then
-                                table.insert(targets, eRoot)
+                local char = game.Players.LocalPlayer.Character
+                local tool = char and char:FindFirstChildOfClass("Tool")
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+
+                if root and tool and (tool.ToolTip == "Melee" or tool.ToolTip == "Sword") then
+                    local enemies = workspace:FindFirstChild("Enemies")
+                    if not enemies then return end
+
+                    -- Tạo danh sách các quái vật trong tầm đánh
+                    local hitData = {}
+                    for _, v in pairs(enemies:GetChildren()) do
+                        if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                            local eRoot = v:FindFirstChild("HumanoidRootPart")
+                            if eRoot and (eRoot.Position - root.Position).Magnitude <= _G.AttackRange then
+                                -- Cấu trúc chuẩn để Server nhận diện đánh trúng nhiều mục tiêu
+                                table.insert(hitData, {eRoot, eRoot}) 
                             end
                         end
                     end
 
-                    -- 2. Thực hiện đánh ĐỒNG THỜI
-                    if #targets > 0 then
-                        -- Gửi tín hiệu vung kiếm (Chỉ cần 1 lần để tránh lag)
-                        RegisterAttack:FireServer(0)
-                        
-                        -- Lặp qua từng con quái và ép Server nhận sát thương
-                        for i = 1, #targets do
-                            -- Gửi sát thương riêng biệt cho từng mục tiêu trong cùng 1 vòng lặp
-                            -- Đây là cách duy nhất để đánh Multi-Target nếu nén Table không hoạt động
-                            RegisterHit:FireServer(targets[i], {}, "BladeHit")
-                            
-                            -- Nếu muốn cực mạnh (x2 sát thương), mở comment dòng dưới:
-                            -- RegisterHit:FireServer(targets[i], {}, "BladeHit")
-                        end
+                    -- Nếu có quái trong tầm, thực hiện 1 đòn đánh duy nhất trúng TẤT CẢ
+                    if #hitData > 0 then
+                        RegisterAttack:FireServer(0) -- Vung kiếm
+                        -- Gửi toàn bộ hitData (chứa tất cả quái) trong 1 Remote
+                        RegisterHit:FireServer(hitData[1][1], hitData, "BladeHit")
                     end
                 end
             end)
@@ -535,7 +525,7 @@ end)
 -- [[ CẤU HÌNH HỆ THỐNG AUTO FARM LEVEL]]
 _G.AutoFarm = false
 _G.BringMob = true
-_G.Distance = 10 -- Đã giảm xuống để chém chuẩn hơn
+_G.Distance = 15 -- Đã giảm xuống để chém chuẩn hơn
 
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -959,5 +949,70 @@ RunService.RenderStepped:Connect(function(deltaTime)
         
         frameCount = 0
         lastUpdate = currentTime
+    end
+end)
+
+-------------------------------------------------------
+--// LOGIC AUTO FARM NEAR (PHIÊN BẢN CHỐNG ĐỨNG YÊN)
+-------------------------------------------------------
+task.spawn(function()
+    while task.wait() do
+        if _G.AutoFarmNear then
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                local root = char and char:FindFirstChild("HumanoidRootPart")
+                if not root then return end
+
+                local targetMob = nil
+                local shortestDistance = _G.ScanRange or 1000
+
+                -- Tìm quái gần nhất
+                for _, v in pairs(workspace.Enemies:GetChildren()) do
+                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") then
+                        local dist = (root.Position - v.HumanoidRootPart.Position).Magnitude
+                        if dist < shortestDistance then
+                            shortestDistance = dist
+                            targetMob = v
+                        end
+                    end
+                end
+
+                if targetMob then
+                    local mobRoot = targetMob.HumanoidRootPart
+                    local distToMob = (root.Position - mobRoot.Position).Magnitude
+
+                    if distToMob > 150 then
+                        -- TRƯỜNG HỢP Ở XA: Tắt khóa vị trí để topos hoạt động
+                        _G.TargetFarmCF = nil 
+                        topos(mobRoot.CFrame * CFrame.new(0, 20, 0))
+                    else
+                        -- TRƯỜNG HỢP Ở GẦN: Bắt đầu khóa vị trí và đánh
+                        EquipWeapon(_G.SelectWeapon)
+                        _G.TargetFarmCF = mobRoot.CFrame * CFrame.new(0, _G.Distance or 15, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+
+                        -- Gom quái và Đóng băng vật lý (Chống văng)
+                        if _G.BringMob then
+                            for _, m in pairs(workspace.Enemies:GetChildren()) do
+                                if m.Name == targetMob.Name and m:FindFirstChild("HumanoidRootPart") then
+                                    local mRoot = m.HumanoidRootPart
+                                    if (mRoot.Position - mobRoot.Position).Magnitude < 300 then
+                                        mRoot.CanCollide = false
+                                        mRoot.CFrame = mobRoot.CFrame
+                                        mRoot.Velocity = Vector3.new(0, 0, 0) -- Khóa quái tại chỗ
+                                        if m:FindFirstChild("Humanoid") then
+                                            m.Humanoid.PlatformStand = true
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                else
+                    _G.TargetFarmCF = nil -- Không có quái thì không khóa
+                end
+            end)
+        else
+            _G.TargetFarmCF = nil
+        end
     end
 end)

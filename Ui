@@ -1,0 +1,175 @@
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local Library = {}
+
+-- Màu sắc chủ đạo
+local LibTheme = {
+    Main = Color3.fromRGB(15, 15, 20),
+    Sidebar = Color3.fromRGB(12, 12, 15),
+    Accent = Color3.fromRGB(255, 220, 100),
+    ButtonBG = Color3.fromRGB(180, 160, 110),
+    ItemBG = Color3.fromRGB(22, 22, 28),
+    Border = Color3.fromRGB(45, 45, 55),
+    Text = Color3.fromRGB(255, 255, 255)
+}
+
+function Library:MakeWindow(Config)
+    local Window = {
+        CurrentTab = nil
+    }
+    
+    -- ScreenGui
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "BananaCat_Lib"
+    ScreenGui.Parent = (getgenv and CoreGui) or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- Main Frame
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Size = UDim2.new(0, 680, 0, 420)
+    MainFrame.Position = UDim2.new(0.5, -340, 0.5, -210)
+    MainFrame.BackgroundColor3 = LibTheme.Main
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = ScreenGui
+
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 5)
+    local Stroke = Instance.new("UIStroke", MainFrame)
+    Stroke.Color = LibTheme.Border
+    Stroke.Thickness = 1.2
+
+    -- Sidebar
+    local Sidebar = Instance.new("Frame")
+    Sidebar.Size = UDim2.new(0, 210, 1, -45)
+    Sidebar.Position = UDim2.new(0, 5, 0, 40)
+    Sidebar.BackgroundColor3 = LibTheme.Sidebar
+    Sidebar.Parent = MainFrame
+    Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 4)
+
+    -- Tab Container (Nơi chứa các nút bấm chuyển Tab)
+    local TabScroll = Instance.new("ScrollingFrame")
+    TabScroll.Size = UDim2.new(1, 0, 1, -10)
+    TabScroll.Position = UDim2.new(0, 0, 0, 5)
+    TabScroll.BackgroundTransparency = 1
+    TabScroll.ScrollBarThickness = 0
+    TabScroll.Parent = Sidebar
+    
+    local TabList = Instance.new("UIListLayout", TabScroll)
+    TabList.Padding = UDim.new(0, 2)
+
+    -- Content Area (Nơi chứa nội dung các Tab)
+    local ContentContainer = Instance.new("Frame")
+    ContentContainer.Size = UDim2.new(1, -225, 1, -50)
+    ContentContainer.Position = UDim2.new(0, 220, 0, 45)
+    ContentContainer.BackgroundTransparency = 1
+    ContentContainer.Parent = MainFrame
+
+    -- Hàm tạo Tab mới
+    function Window:MakeTab(TabConfig)
+        local Tab = {
+            Active = false
+        }
+        local TabName = TabConfig.Name or "Tab"
+        
+        -- Nút bấm trên Sidebar
+        local TabBtn = Instance.new("TextButton")
+        TabBtn.Size = UDim2.new(1, 0, 0, 35)
+        TabBtn.BackgroundTransparency = 1
+        TabBtn.Text = "   " .. TabName
+        TabBtn.Font = Enum.Font.GothamBold
+        TabBtn.TextSize = 13
+        TabBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.Parent = TabScroll
+
+        -- Trang nội dung tương ứng
+        local TabPage = Instance.new("ScrollingFrame")
+        TabPage.Size = UDim2.new(1, 0, 1, 0)
+        TabPage.BackgroundTransparency = 1
+        TabPage.Visible = false
+        TabPage.ScrollBarThickness = 2
+        TabPage.Parent = ContentContainer
+        
+        Instance.new("UIListLayout", TabPage).Padding = UDim.new(0, 8)
+
+        -- Logic chuyển Tab
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, v in pairs(ContentContainer:GetChildren()) do
+                v.Visible = false
+            end
+            for _, v in pairs(TabScroll:GetChildren()) do
+                if v:IsA("TextButton") then
+                    TweenService:Create(v, TweenInfo.new(0.3), {TextColor3 = Color3.fromRGB(180, 180, 180)}):Play()
+                end
+            end
+            TabPage.Visible = true
+            TweenService:Create(TabBtn, TweenInfo.new(0.3), {TextColor3 = LibTheme.Accent}):Play()
+        end)
+
+        -- Hàm thêm Button vào Tab
+        function Tab:AddButton(BtnConfig)
+            local Name = BtnConfig.Name or "Button"
+            local Callback = BtnConfig.Callback or function() end
+            
+            local Frame = Instance.new("Frame")
+            Frame.Size = UDim2.new(1, -15, 0, 50)
+            Frame.BackgroundColor3 = LibTheme.ItemBG
+            Frame.Parent = TabPage
+            Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 8)
+            
+            local Label = Instance.new("TextLabel")
+            Label.Text = Name
+            Label.Size = UDim2.new(0.6, 0, 1, 0)
+            Label.Position = UDim2.new(0, 15, 0, 0)
+            Label.TextColor3 = LibTheme.Text
+            Label.Font = Enum.Font.GothamBold
+            Label.TextSize = 14
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.BackgroundTransparency = 1
+            Label.Parent = Frame
+            
+            local ClickBtn = Instance.new("TextButton")
+            ClickBtn.Text = "Click"
+            ClickBtn.Size = UDim2.new(0, 95, 0, 34)
+            ClickBtn.Position = UDim2.new(1, -105, 0.5, -17)
+            ClickBtn.BackgroundColor3 = LibTheme.ButtonBG
+            ClickBtn.TextColor3 = Color3.fromRGB(30, 30, 30)
+            ClickBtn.Font = Enum.Font.GothamBold
+            ClickBtn.TextSize = 14
+            ClickBtn.Parent = Frame
+            Instance.new("UICorner", ClickBtn).CornerRadius = UDim.new(0, 17)
+
+            ClickBtn.MouseButton1Click:Connect(function()
+                Callback()
+                -- Hiệu ứng nhấn
+                ClickBtn.AutoButtonColor = true
+            end)
+        end
+
+        return Tab
+    end
+
+    -- Logic Kéo thả (Draggable)
+    local dragStart, startPos
+    MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragStart = input.Position
+            startPos = MainFrame.Position
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragStart and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+    MainFrame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragStart = nil end
+    end)
+
+    return Window
+end
+
+return Library

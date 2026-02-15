@@ -4,12 +4,13 @@ local CoreGui = game:GetService("CoreGui")
 
 local Library = {}
 
--- Hệ thống màu sắc hỗ trợ nhanh
+-- Hệ thống màu sắc & Helper
 local Colors = {
     White = Color3.fromRGB(255, 255, 255),
     Black = Color3.fromRGB(0, 0, 0),
     Yellow = Color3.fromRGB(255, 220, 100),
-    Gray = Color3.fromRGB(180, 180, 180)
+    Gray = Color3.fromRGB(180, 180, 180),
+    BlueAccent = Color3.fromRGB(60, 120, 255)
 }
 
 local LibTheme = {
@@ -17,94 +18,175 @@ local LibTheme = {
     Sidebar = Color3.fromRGB(12, 12, 15),
     Accent = Colors.Yellow,
     ItemBG = Color3.fromRGB(22, 22, 28),
-    Border = Color3.fromRGB(45, 45, 55)
+    Border = Color3.fromRGB(45, 45, 55),
+    ButtonBG = Color3.fromRGB(180, 160, 110)
 }
 
 function Library:MakeWindow(Config)
-    local Window = {}
-    
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "BananaCat_Premium"
-    ScreenGui.Parent = (getgenv and CoreGui) or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local Window = { Tabs = {} }
+    local TitleText = Config.Title or "Banana Cat Hub"
+    local SubTitleText = Config.SubTitle or "Blox Fruit"
 
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "BananaCat_Final_UI"
+    ScreenGui.Parent = (getgenv and CoreGui) or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    -- Khung chính
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 680, 0, 420)
     MainFrame.Position = UDim2.new(0.5, -340, 0.5, -210)
     MainFrame.BackgroundColor3 = LibTheme.Main
+    MainFrame.BackgroundTransparency = 0.1
+    MainFrame.BorderSizePixel = 0
     MainFrame.Parent = ScreenGui
-    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 5)
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
+    
+    local Stroke = Instance.new("UIStroke", MainFrame)
+    Stroke.Color = LibTheme.Border
+    Stroke.Thickness = 1.2
 
+    -- Header
+    local Header = Instance.new("Frame")
+    Header.Size = UDim2.new(1, 0, 0, 40)
+    Header.BackgroundTransparency = 1
+    Header.Parent = MainFrame
+
+    local CatIcon = Instance.new("ImageLabel")
+    CatIcon.Size = UDim2.new(0, 24, 0, 24)
+    CatIcon.Position = UDim2.new(0, 10, 0, 8)
+    CatIcon.Image = "rbxassetid://14636326046" -- Icon chuối
+    CatIcon.BackgroundTransparency = 1
+    CatIcon.Parent = Header
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Text = TitleText .. "  -  " .. SubTitleText
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.TextSize = 15
+    TitleLabel.TextColor3 = LibTheme.Accent
+    TitleLabel.Position = UDim2.new(0, 40, 0, 0)
+    TitleLabel.Size = UDim2.new(1, -40, 1, 0)
+    TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+    TitleLabel.BackgroundTransparency = 1
+    TitleLabel.Parent = Header
+
+    -- Sidebar & Search
+    local Sidebar = Instance.new("Frame")
+    Sidebar.Size = UDim2.new(0, 200, 1, -50)
+    Sidebar.Position = UDim2.new(0, 8, 0, 42)
+    Sidebar.BackgroundColor3 = LibTheme.Sidebar
+    Sidebar.Parent = MainFrame
+    Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 4)
+
+    local TabScroll = Instance.new("ScrollingFrame")
+    TabScroll.Size = UDim2.new(1, 0, 1, -10)
+    TabScroll.Position = UDim2.new(0, 0, 0, 5)
+    TabScroll.BackgroundTransparency = 1
+    TabScroll.ScrollBarThickness = 0
+    TabScroll.Parent = Sidebar
+    Instance.new("UIListLayout", TabScroll).Padding = UDim.new(0, 2)
+
+    -- Content Area
     local ContentContainer = Instance.new("Frame")
     ContentContainer.Size = UDim2.new(1, -225, 1, -50)
-    ContentContainer.Position = UDim2.new(0, 220, 0, 45)
+    ContentContainer.Position = UDim2.new(0, 215, 0, 45)
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.Parent = MainFrame
 
     function Window:MakeTab(TabConfig)
-        local Tab = {}
-        local TabPage = Instance.new("ScrollingFrame")
-        TabPage.Size = UDim2.new(1, 0, 1, 0)
-        TabPage.BackgroundTransparency = 1
-        TabPage.ScrollBarThickness = 2
-        TabPage.Visible = true -- Tạm thời để true để test
-        TabPage.Parent = ContentContainer
-        Instance.new("UIListLayout", TabPage).Padding = UDim.new(0, 8)
+        local Tab = { Active = false }
+        local Name = TabConfig.Name or "Tab"
+        
+        local TabBtn = Instance.new("TextButton")
+        TabBtn.Size = UDim2.new(1, -10, 0, 32)
+        TabBtn.BackgroundTransparency = 1
+        TabBtn.Text = "  " .. Name
+        TabBtn.Font = Enum.Font.GothamBold
+        TabBtn.TextSize = 13
+        TabBtn.TextColor3 = Colors.Gray
+        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.Parent = TabScroll
 
-        -- HÀM THÊM TOGGLE
+        local Page = Instance.new("ScrollingFrame")
+        Page.Size = UDim2.new(1, 0, 1, 0)
+        Page.BackgroundTransparency = 1
+        Page.Visible = false
+        Page.ScrollBarThickness = 2
+        Page.Parent = ContentContainer
+        Instance.new("UIListLayout", Page).Padding = UDim.new(0, 8)
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, v in pairs(ContentContainer:GetChildren()) do v.Visible = false end
+            for _, v in pairs(TabScroll:GetChildren()) do 
+                if v:IsA("TextButton") then v.TextColor3 = Colors.Gray end 
+            end
+            Page.Visible = true
+            TabBtn.TextColor3 = Colors.White
+        end)
+
+        -- HÀM TOGGLE (CHỈNH MÀU CHỮ)
         function Tab:AddToggle(TogConfig)
-            local Name = TogConfig.Name or "Toggle"
-            local Default = TogConfig.Default or false
+            local TName = TogConfig.Name or "Toggle"
+            local TState = TogConfig.Default or false
             local Callback = TogConfig.Callback or function() end
-            local TColor = Colors[TogConfig.TextColor] or Colors.White -- Check màu từ lệnh TextColor
             
-            local Toggled = Default
+            -- Lệnh TextColor = "Yellow" / "White" / "Black"
+            local TextCol = Colors[TogConfig.TextColor] or Colors.White
 
             local Frame = Instance.new("Frame")
-            Frame.Size = UDim2.new(1, -15, 0, 45)
+            Frame.Size = UDim2.new(1, -10, 0, 45)
             Frame.BackgroundColor3 = LibTheme.ItemBG
-            Frame.Parent = TabPage
-            Instance.new("UICorner", Frame)
+            Frame.Parent = Page
+            Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 6)
 
             local Label = Instance.new("TextLabel")
-            Label.Text = Name
+            Label.Text = TName
             Label.Size = UDim2.new(1, -60, 1, 0)
-            Label.Position = UDim2.new(0, 15, 0, 0)
-            Label.TextColor3 = TColor -- Áp dụng màu tùy chỉnh
+            Label.Position = UDim2.new(0, 12, 0, 0)
+            Label.TextColor3 = TextCol
             Label.Font = Enum.Font.GothamBold
-            Label.TextSize = 14
-            Label.TextXAlignment = Enum.TextXAlignment.Left
+            Label.TextSize = 13
             Label.BackgroundTransparency = 1
+            Label.TextXAlignment = Enum.TextXAlignment.Left
             Label.Parent = Frame
 
-            local ToggleBG = Instance.new("TextButton")
-            ToggleBG.Size = UDim2.new(0, 40, 0, 20)
-            ToggleBG.Position = UDim2.new(1, -50, 0.5, -10)
-            ToggleBG.BackgroundColor3 = Toggled and LibTheme.Accent or Color3.fromRGB(50, 50, 50)
-            ToggleBG.Text = ""
-            ToggleBG.Parent = Frame
-            Instance.new("UICorner", ToggleBG).CornerRadius = UDim.new(1, 0)
+            local Switch = Instance.new("TextButton")
+            Switch.Size = UDim2.new(0, 36, 0, 18)
+            Switch.Position = UDim2.new(1, -45, 0.5, -9)
+            Switch.BackgroundColor3 = TState and LibTheme.Accent or Color3.fromRGB(40, 40, 45)
+            Switch.Text = ""
+            Switch.Parent = Frame
+            Instance.new("UICorner", Switch).CornerRadius = UDim.new(1, 0)
 
             local Dot = Instance.new("Frame")
-            Dot.Size = UDim2.new(0, 16, 0, 16)
-            Dot.Position = Toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+            Dot.Size = UDim2.new(0, 14, 0, 14)
+            Dot.Position = TState and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
             Dot.BackgroundColor3 = Colors.White
-            Dot.Parent = ToggleBG
+            Dot.Parent = Switch
             Instance.new("UICorner", Dot).CornerRadius = UDim.new(1, 0)
 
-            ToggleBG.MouseButton1Click:Connect(function()
-                Toggled = not Toggled
-                local targetPos = Toggled and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-                local targetColor = Toggled and LibTheme.Accent or Color3.fromRGB(50, 50, 50)
-                
-                TweenService:Create(Dot, TweenInfo.new(0.2), {Position = targetPos}):Play()
-                TweenService:Create(ToggleBG, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
-                
-                Callback(Toggled)
+            Switch.MouseButton1Click:Connect(function()
+                TState = not TState
+                TweenService:Create(Switch, TweenInfo.new(0.2), {BackgroundColor3 = TState and LibTheme.Accent or Color3.fromRGB(40, 40, 45)}):Play()
+                TweenService:Create(Dot, TweenInfo.new(0.2), {Position = TState and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)}):Play()
+                Callback(TState)
             end)
+        end
+
+        if #TabScroll:GetChildren() == 2 then -- Auto mở tab đầu
+            Page.Visible = true
+            TabBtn.TextColor3 = Colors.White
         end
 
         return Tab
     end
+    
+    -- Draggable
+    local dStart, sPos
+    MainFrame.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dStart = i.Position sPos = MainFrame.Position end end)
+    UserInputService.InputChanged:Connect(function(i) if dStart and i.UserInputType == Enum.UserInputType.MouseMovement then local delta = i.Position - dStart MainFrame.Position = UDim2.new(sPos.X.Scale, sPos.X.Offset + delta.X, sPos.Y.Scale, sPos.Y.Offset + delta.Y) end end)
+    MainFrame.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then dStart = nil end end)
+
     return Window
 end
 

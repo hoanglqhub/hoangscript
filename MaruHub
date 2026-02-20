@@ -1,2 +1,2 @@
 local player = game.Players.LocalPlayer
-player:Kick("cặc ba mày. tham lam vãi cặc")
+player:Kick("vui lòng tải Delta X mới nhất")

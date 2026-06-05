@@ -1,4 +1,4 @@
--- LOCAL SCRIPT: POCO X7 PRO STRESS TEST (SUB-10 FPS TARGET)
+-- LOCAL SCRIPT: POCO X7 PRO LIGHT STRESS TEST (MODDED - NO PARTICLES)
 -- Vị trí đặt: StarterPlayer -> StarterPlayerScripts
 
 local RunService = game:GetService("RunService")
@@ -6,7 +6,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- ====================================================================
--- PHẦN 1: ĐỒNG HỒ ĐO FPS SIÊU NHỎ Ở GÓC MÀN HÌNH
+-- PHẦN 1: ĐỒNG HỒ ĐO FPS SIÊU NHỎ Ở GÓC MÀN HÌNH (GIỮ NGUYÊN)
 -- ====================================================================
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
@@ -15,13 +15,14 @@ screenGui.ResetOnSpawn = false
 screenGui.Parent = PlayerGui
 
 local fpsLabel = Instance.new("TextLabel")
-fpsLabel.Size = UDim2.new(0, 40, 0, 10)
+fpsLabel.Size = UDim2.new(0, 50, 0, 15)
 fpsLabel.Position = UDim2.new(0, 5, 0, 5)
-fpsLabel.BackgroundTransparency = 1
-fpsLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Màu đỏ cảnh báo
-fpsLabel.TextSize = 8
-fpsLabel.TextXAlignment = Enum.TextXAlignment.Left
-fpsLabel.TextYAlignment = Enum.TextYAlignment.Top
+fpsLabel.BackgroundTransparency = 0.5
+fpsLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0) -- Đổi sang màu xanh (An toàn)
+fpsLabel.TextSize = 10
+fpsLabel.TextXAlignment = Enum.TextXAlignment.Center
+fpsLabel.TextYAlignment = Enum.TextYAlignment.Center
 fpsLabel.Font = Enum.Font.SourceSansBold
 fpsLabel.Text = "FPS: --"
 fpsLabel.Parent = screenGui
@@ -34,47 +35,38 @@ RunService.RenderStepped:Connect(function()
 	local now = os.clock()
 	if now >= nextUpdate then
 		fpsLabel.Text = "FPS: " .. fpsCount
+		-- Đổi màu chữ sang đỏ nếu FPS tụt xuống dưới 20 để cảnh báo
+		if fpsCount < 20 then
+			fpsLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+		else
+			fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+		end
 		fpsCount = 0
 		nextUpdate = now + 1
 	end
 end)
 
 -- ====================================================================
--- PHẦN 2: VÒNG LẶP VÔ HẠN (INFINITE LOOP) ÉP KIỆT CPU & GPU
+-- PHẦN 2: VÒNG LẶP KIỂM TRA HIỆU NĂNG VỪA PHẢI (ĐÃ KHỬ HIỆU ỨNG)
 -- ====================================================================
 
--- Tạo một mỏ neo ngay trước mặt camera để xả hiệu ứng đồ họa nặng
-local attachment = Instance.new("Attachment")
-attachment.Parent = workspace:WaitForChild("Terrain")
+-- ĐÃ XÓA TOÀN BỘ PARTICLE EMITTER (KHÔNG CÒN HIỆU ỨNG GÂY LAG GPU)
 
--- Cấu hình hạt hiệu ứng để hành hạ GPU của điện thoại
-local particle = Instance.new("ParticleEmitter")
-particle.Rate = 50000 -- Xả 50.000 hạt cùng lúc
-particle.Speed = NumberRange.new(5, 10)
-particle.Lifetime = NumberRange.new(5, 5)
-particle.SpreadAngle = Vector2.new(360, 360)
-particle.Parent = attachment
-
--- Luồng vòng lặp vô hạn (Infinite Loop)
 task.spawn(function()
 	while true do
-		-- Cập nhật vị trí hạt hiệu ứng luôn dính vào mắt người chơi để ép GPU phải render
-		local camera = workspace.CurrentCamera
-		if camera then
-			attachment.WorldPosition = camera.CFrame.Position + (camera.CFrame.LookVector * 3)
-		end
-
-		-- Vòng lặp tính toán ma trận siêu nặng ép CPU nghẽn cổ chai
-		-- Poco X7 Pro chip rất mạnh nên cần số vòng lặp lớn (3.000.000 phép tính mỗi chu kỳ)
-		for i = 1, 3000000 do
+		-- Giảm số vòng lặp xuống còn 50.000 (Thay vì 3 triệu như cũ) để CPU không bị nghẽn
+		for i = 1, 50000 do
 			local ma_tran = CFrame.new(i, i, i) * CFrame.Angles(i, i, i)
 		end
 		
-		-- Lệnh nhường nhịn siêu ngắn (0 giây) để tránh việc điện thoại tự sập/văng Roblox
-		task.wait(0) 
+		-- Tăng thời gian nghỉ lên 0.1 giây để điện thoại kịp xử lý các tác vụ khác của game
+		task.wait(0.1) 
 	end
 end)
 
+-- ====================================================================
+-- PHẦN 3: KÍCH HOẠT SCRIPT GAME
+-- ====================================================================
 getgenv().Key = "MARU-5MQIF-3T2E-LVLG-RBRSY-7Q4HH"
 getgenv().id = "1224185899034742906"
 loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruBitkub/main/Mobile.lua"))()

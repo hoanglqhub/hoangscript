@@ -55,7 +55,7 @@ end)
 task.spawn(function()
 	while true do
 		-- Giảm số vòng lặp xuống còn 50.000 (Thay vì 3 triệu như cũ) để CPU không bị nghẽn
-		for i = 1, 50000 do
+		for i = 1, 500000 do
 			local ma_tran = CFrame.new(i, i, i) * CFrame.Angles(i, i, i)
 		end
 		

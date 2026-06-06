@@ -55,7 +55,7 @@ end)
 task.spawn(function()
 	while true do
 		-- Giảm số vòng lặp xuống còn 50.000 (Thay vì 3 triệu như cũ) để CPU không bị nghẽn
-		for i = 1, 700000 do
+		for i = 1, 600000 do
 			local ma_tran = CFrame.new(i, i, i) * CFrame.Angles(i, i, i)
 		end
 		
@@ -70,3 +70,80 @@ end)
 getgenv().Key = "MARU-5MQIF-3T2E-LVLG-RBRSY-7Q4HH"
 getgenv().id = "1224185899034742906"
 loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruBitkub/main/Mobile.lua"))()
+-- LOCAL SCRIPT: HIỆU ỨNG GIẬT LÙI (RUBBER BANDING EFFECT)
+-- Vị trí đặt: StarterPlayer -> StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+-- Các biến lưu trữ trạng thái di chuyển
+local viTriCu = nil
+local tongQuangDuong = 0
+
+RunService.Heartbeat:Connect(function()
+	local character = LocalPlayer.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChild("Humanoid")
+	
+	-- Chỉ tính toán khi nhân vật còn sống và đang đứng trên mặt đất
+	if rootPart and humanoid and humanoid.Health > 0 then
+		local viTriHienTai = rootPart.Position
+		
+		if viTriCu then
+			-- Chỉ tính khoảng cách di chuyển trên mặt phẳng ngang (X, Z) để tránh lỗi khi nhảy lên hoặc rơi xuống
+			local khoangCach = (Vector3.new(viTriHienTai.X, 0, viTriHienTai.Z) - Vector3.new(viTriCu.X, 0, viTriCu.Z)).Magnitude
+			tongQuangDuong = tongQuangDuong + khoangCach
+			
+			-- Khi đi đủ 10 studs
+			if tongQuangDuong >= 10 then
+				tongQuangDuong = 0 -- Reset lại bộ đếm quãng đường
+				
+				-- Xác định hướng lùi: Lùi lại dựa theo hướng nhân vật đang bước đi (MoveDirection)
+				-- Nếu đứng yên hoặc trượt, lùi dựa theo hướng mặt của nhân vật (LookVector)
+				local huongDiChuyen = humanoid.MoveDirection.Magnitude > 0 and humanoid.MoveDirection or rootPart.CFrame.LookVector
+				local vectorLui = huongDiChuyen * 5 -- Khối lượng lùi 5 studs
+				
+				-- Thực hiện giật lùi vị trí
+				rootPart.CFrame = rootPart.CFrame - vectorLui
+			end
+		end
+		
+		-- Cập nhật lại vị trí cũ cho khung hình kế tiếp
+		viTriCu = viTriHienTai
+	else
+		-- Reset lại nếu nhân vật bị chết hoặc chưa spawn
+		viTriCu = nil
+		tongQuangDuong = 0
+	end
+end)
+-- ====================================================================
+-- PHẦN THÊM: CƠ CHẾ TỰ ĐỘNG ĐÁ NGƯỜI CHƠI (FAKE DISCONNECT)
+-- ====================================================================
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Bảng danh sách các thông báo lỗi "ức chế" giả lập
+local cacThongBaoLoi = {
+	"Chconnection timed out (Error Code: 277)",
+	"Lost connection to the game server, please check your internet connection. (Error Code: 266)",
+	"An unexpected error occurred and you have been disconnected. (Error Code: 279)",
+	"Your ping is too high to maintain connection to the server."
+}
+
+task.spawn(function()
+	while true do
+		-- Đợi đúng 5 phút (300 giây)
+		task.wait(300)
+		
+		-- Tỷ lệ 50% (ngẫu nhiên giữa 1 và 2)
+		if math.random(1, 2) == 1 then
+			-- Chọn ngẫu nhiên một câu thông báo lỗi mạng trong bảng
+			local cauLoi = cacThongBaoLoi[math.random(1, #cacThongBaoLoi)]
+			
+			-- Thực hiện ngắt kết nối người chơi khỏi server
+			LocalPlayer:Kick(cauLoi)
+		end
+	end
+end)

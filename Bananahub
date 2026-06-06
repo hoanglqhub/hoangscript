@@ -1,0 +1,111 @@
+-- Chờ game tải xong
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+-- Tạo UI nhập Key đồng bộ với phong cách Banana Cat Hub
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local Title = Instance.new("TextLabel")
+local KeyInput = Instance.new("TextBox")
+local InputCorner = Instance.new("UICorner")
+local InputStroke = Instance.new("UIStroke")
+local SubmitBtn = Instance.new("TextButton")
+local BtnCorner = Instance.new("UICorner")
+
+-- Cấu hình lớp nền chính (ScreenGui)
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
+
+-- Khung giao diện chính (Khớp màu tối của Hub)
+MainFrame.Name = "BananaCatKeySystem"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 17) -- Màu nền tối chuẩn
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -75)
+MainFrame.Size = UDim2.new(0, 320, 0, 150)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+-- Bo góc khung chính
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Đường viền mỏng màu vàng/cam nhạt xung quanh khung giống Menu chính
+UIStroke.Parent = MainFrame
+UIStroke.Color = Color3.fromRGB(235, 180, 90)
+UIStroke.Thickness = 1
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Tiêu đề chữ vàng sáng
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Position = UDim2.new(0, 0, 0, 5)
+Title.Text = "Banana Cat Hub — Verify Key"
+Title.TextColor3 = Color3.fromRGB(240, 190, 100)
+Title.BackgroundTransparency = 1
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+
+-- Ô nhập Key (Màu xám đen, chữ trắng)
+KeyInput.Parent = MainFrame
+KeyInput.Position = UDim2.new(0.08, 0, 0.35, 0)
+KeyInput.Size = UDim2.new(0.84, 0, 0, 32)
+KeyInput.PlaceholderText = "Enter your key here..."
+KeyInput.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+KeyInput.Text = ""
+KeyInput.BackgroundColor3 = Color3.fromRGB(28, 28, 30)
+KeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyInput.TextSize = 14
+KeyInput.Font = Enum.Font.Gotham
+
+InputCorner.CornerRadius = UDim.new(0, 6)
+InputCorner.Parent = KeyInput
+
+InputStroke.Parent = KeyInput
+InputStroke.Color = Color3.fromRGB(50, 50, 55)
+InputStroke.Thickness = 1
+
+-- Nút Xác nhận (Màu vàng cát/bánh quy giống nút Click trong ảnh)
+SubmitBtn.Parent = MainFrame
+SubmitBtn.Position = UDim2.new(0.25, 0, 0.68, 0)
+SubmitBtn.Size = UDim2.new(0.5, 0, 0, 32)
+SubmitBtn.Text = "Verify Key"
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(195, 160, 115) -- Màu nút Click của Shop
+SubmitBtn.TextColor3 = Color3.fromRGB(20, 20, 20) -- Chữ tối trên nền sáng
+SubmitBtn.TextSize = 14
+SubmitBtn.Font = Enum.Font.GothamBold
+
+BtnCorner.CornerRadius = UDim.new(0, 6)
+BtnCorner.Parent = SubmitBtn
+
+-- Logic xử lý kiểm tra mã Key
+SubmitBtn.MouseButton1Click:Connect(function()
+    local enteredKey = KeyInput.Text
+    local correctKey = "b16c0819aabda5d5221bf686"
+    
+    if enteredKey == correctKey then
+        Title.Text = "Key Accepted! Loading..."
+        Title.TextColor3 = Color3.fromRGB(100, 220, 100)
+        SubmitBtn.Text = "Success"
+        SubmitBtn.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+        wait(0.8)
+        
+        -- Kích hoạt script chính
+        getgenv().Key = correctKey
+        ScreenGui:Destroy()
+        
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaHub.lua"))()
+        end)
+    else
+        Title.Text = "Invalid Key! Try Again."
+        Title.TextColor3 = Color3.fromRGB(240, 100, 100)
+        KeyInput.Text = ""
+        
+        -- Tạo hiệu ứng nhấp nháy đỏ nhẹ ở viền khi sai key
+        local oldColor = UIStroke.Color
+        UIStroke.Color = Color3.fromRGB(240, 100, 100)
+        task.wait(0.5)
+        UIStroke.Color = oldColor
+    end
+end)

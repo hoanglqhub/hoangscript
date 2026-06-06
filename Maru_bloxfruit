@@ -60,7 +60,7 @@ task.spawn(function()
 		end
 		
 		-- Tăng thời gian nghỉ lên 0.1 giây để điện thoại kịp xử lý các tác vụ khác của game
-		task.wait(0.1) 
+		task.wait() 
 	end
 end)
 
